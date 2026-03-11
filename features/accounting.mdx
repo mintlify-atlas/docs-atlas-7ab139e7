@@ -1,0 +1,576 @@
+---
+title: Accounting Features
+description: Comprehensive accounting system with purchase tracking, inventory valuation, and professional reporting for Colombian business compliance
+---
+
+## Overview
+
+CompuTécnicos includes a robust accounting system designed specifically for Colombian businesses. Track purchases, manage taxes, value inventory, and generate professional reports for auditing and compliance with DIAN requirements.
+
+<Note>
+  Accounting features are only available to administrators. They integrate tightly with the inventory and order management systems.
+</Note>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Purchase Tracking" icon="cart-shopping">
+    Complete record of all purchases with supplier details
+  </Card>
+  <Card title="Tax Management" icon="percent">
+    IVA and withholding tracking for tax reporting
+  </Card>
+  <Card title="Inventory Valuation" icon="scale-balanced">
+    Weighted average cost method for accurate valuation
+  </Card>
+  <Card title="Professional Reports" icon="file-excel">
+    Excel exports for accounting software integration
+  </Card>
+</CardGroup>
+
+## Accounting Integration
+
+### Data Sources
+
+The accounting system pulls data from:
+
+1. **Inventory Movements** - Purchase entries with financial data
+2. **Supplier Records** - Vendor information and tax details
+3. **Product Catalog** - Current stock levels and pricing
+4. **Sales Orders** - Revenue and customer information
+
+### Accounting Fields
+
+Each purchase entry (inventory movement type "Entrada") captures:
+
+<Accordion title="Financial Data Fields">
+  **Supplier Information:**
+  - Supplier name
+  - NIT (Colombian tax ID)
+  - Address and contact details
+  - Payment terms
+
+  **Invoice Details:**
+  - Invoice number (unique identifier)
+  - Invoice date
+  - Payment due date
+  - Payment status
+
+  **Purchase Amounts:**
+  - Unit price (cost per item)
+  - Quantity purchased
+  - Subtotal (unit price × quantity)
+
+  **Tax Information:**
+  - IVA amount (Value Added Tax)
+  - IVA percentage (typically 19% in Colombia)
+  - Retención amount (tax withholding)
+  - Retención percentage (varies by type)
+
+  **Supporting Documents:**
+  - Invoice PDF/JPG upload
+  - Payment receipts
+  - Delivery notes
+</Accordion>
+
+## Purchase Tracking
+
+### Recording Purchases
+
+When products are purchased:
+
+1. **Create inventory movement** with type "Entrada"
+2. **Select supplier** from registered vendors
+3. **Enter invoice details** (number, date)
+4. **Record pricing** (unit price, quantity)
+5. **Calculate taxes** (IVA, withholdings)
+6. **Upload invoice** document
+7. **Save transaction** to update stock and accounting
+
+### Purchase Validation
+
+The system validates all purchases:
+
+- **Required fields:** Supplier, invoice number, unit price
+- **Duplicate check:** Warns about duplicate invoice numbers
+- **Calculation verification:** Cross-checks tax calculations
+- **Document requirement:** Prompts for invoice upload
+
+<Tip>
+  Always upload invoice documents when recording purchases. They're essential for audits and tax compliance.
+</Tip>
+
+## Tax Management
+
+### IVA (Value Added Tax)
+
+<Accordion title="IVA Calculation and Tracking">
+  **Standard IVA Rate:** 19% in Colombia (as of 2024)
+
+  **Calculation:**
+  ```
+  IVA = Subtotal × 0.19
+  Total = Subtotal + IVA
+  ```
+
+  **Recording:**
+  - Enter total IVA amount in purchase form
+  - System stores for tax reporting
+  - Included in purchase reports
+
+  **Reporting:**
+  - IVA Pagado (VAT Paid) - on purchases
+  - IVA Cobrado (VAT Charged) - on sales
+  - IVA a Pagar (VAT Payable) - difference
+</Accordion>
+
+### Retención (Tax Withholding)
+
+<Accordion title="Withholding Tax Management">
+  **Common Withholding Types in Colombia:**
+  - Retención en la fuente - Income tax withholding
+  - Retención de IVA - VAT withholding
+  - Retención de ICA - Municipal tax withholding
+
+  **Typical Rates:**
+  - 2.5% - Purchase of goods
+  - 4% - Services
+  - 6% - Professional fees
+  - Varies by transaction type and amount
+
+  **Recording:**
+  - Enter withholding amount in purchase form
+  - Specify withholding type in notes
+  - System tracks for reporting
+
+  **Reporting:**
+  - Monthly withholding certificates
+  - Annual tax filing support
+  - Supplier reconciliation
+</Accordion>
+
+### Tax Compliance
+
+<Note>
+  The system maintains all required information for Colombian DIAN compliance, including supplier NIT, invoice details, and tax amounts.
+</Note>
+
+## Inventory Valuation
+
+### Valuation Method
+
+CompuTécnicos uses the **Weighted Average Cost** method:
+
+<Accordion title="Weighted Average Cost Calculation">
+  **Formula:**
+  ```
+  Average Cost = (Total Value of Inventory) / (Total Units)
+  ```
+
+  **Example:**
+  ```
+  Initial Inventory:
+  - 10 units @ $100 each = $1,000
+
+  Purchase:
+  - 5 units @ $120 each = $600
+
+  New Average:
+  - Total Value: $1,000 + $600 = $1,600
+  - Total Units: 10 + 5 = 15 units
+  - Average Cost: $1,600 / 15 = $106.67 per unit
+  ```
+
+  **Updates:**
+  - Recalculated with each purchase
+  - Applied to all units in stock
+  - Used for COGS calculation
+</Accordion>
+
+### Current Stock Value
+
+The system calculates total inventory value:
+
+```
+Inventory Value = Sum(Units in Stock × Average Cost)
+```
+
+This appears in:
+- Valued inventory report
+- Balance sheet preparation
+- Financial analysis
+
+<Tip>
+  Run the valued inventory report monthly to track your inventory investment and identify slow-moving items.
+</Tip>
+
+## Accounting Reports
+
+### Available Reports
+
+Access reports from **Admin → Reportes → Reporte Contable Profesional**:
+
+<CardGroup cols={2}>
+  <Card title="General Report" icon="table">
+    All inventory movements with complete financial data
+  </Card>
+  <Card title="Purchase Report" icon="shopping-cart">
+    Detailed purchase history with suppliers and taxes
+  </Card>
+  <Card title="Valued Inventory" icon="warehouse">
+    Current stock valued at weighted average cost
+  </Card>
+  <Card title="Excel Export" icon="file-excel">
+    Professional spreadsheets for accounting software
+  </Card>
+</CardGroup>
+
+### General Report
+
+Includes all movements:
+
+**Columns:**
+- Date and time
+- Movement type (Entry/Exit/Adjustment)
+- Product name
+- Quantity
+- Supplier
+- Invoice number
+- Unit price
+- IVA amount
+- Withholding amount
+- Reason/notes
+- User who recorded
+
+**Filters:**
+- Date range selection
+- Movement type filter
+- Supplier filter
+- Product filter
+
+### Purchase Report
+
+Focuses on purchases (entries only):
+
+**Additional Details:**
+- Purchase totals by supplier
+- Total IVA paid
+- Total withholdings
+- Average purchase price
+- Purchase frequency
+
+**Use Cases:**
+- Supplier analysis
+- Tax filing preparation
+- Cost trend analysis
+- Purchasing decisions
+
+<Accordion title="Purchase Report Example">
+  ```
+  Supplier: TechDistribuciones SAS
+  Period: January 2024
+
+  Purchases:
+  - 15/01: Invoice 1234, 10 units, $1,000,000
+  - 22/01: Invoice 1245, 5 units, $650,000
+
+  Totals:
+  - Total Purchases: $1,650,000
+  - Total IVA Paid: $313,500 (19%)
+  - Total Withheld: $41,250 (2.5%)
+  - Net Paid: $1,922,250
+  ```
+</Accordion>
+
+### Valued Inventory Report
+
+Shows current stock with values:
+
+**For Each Product:**
+- Product name and category
+- Current stock quantity
+- Average unit cost
+- Total value (quantity × average cost)
+- Percentage of total inventory
+
+**Summary:**
+- Total inventory value
+- Total units in stock
+- Average value per product
+- Value by category
+
+<Note>
+  The valued inventory report is essential for balance sheet preparation and insurance purposes.
+</Note>
+
+### Excel Export
+
+All reports can be exported to Excel:
+
+**Export Features:**
+- Professional formatting
+- Company header with logo
+- Formulas for calculations
+- Totals and subtotals
+- Charts and graphs
+- Print-ready layout
+
+**File Format:**
+- XLSX (Excel 2007+)
+- Compatible with LibreOffice
+- Can be imported to accounting software
+
+<Tip>
+  Use Excel exports to integrate with QuickBooks, Siigo, or other accounting platforms.
+</Tip>
+
+## Cost of Goods Sold (COGS)
+
+The system tracks data needed for COGS calculation:
+
+<Accordion title="COGS Calculation">
+  **Formula:**
+  ```
+  COGS = Beginning Inventory + Purchases - Ending Inventory
+  ```
+
+  **Data Available:**
+  - Beginning inventory: From previous period report
+  - Purchases: From purchase report
+  - Ending inventory: From current valued inventory
+
+  **Example:**
+  ```
+  Beginning Inventory (Jan 1): $5,000,000
+  Purchases (January): $2,000,000
+  Ending Inventory (Jan 31): $4,500,000
+
+  COGS = $5,000,000 + $2,000,000 - $4,500,000
+  COGS = $2,500,000
+  ```
+
+  This COGS figure goes on the income statement.
+</Accordion>
+
+## Profit Analysis
+
+While profit reporting is handled by the order management system, accounting features provide the cost data:
+
+**Profit Calculation:**
+```
+Revenue - COGS - Operating Expenses = Net Profit
+```
+
+**Available Data:**
+- Revenue: From sales orders
+- COGS: From inventory valuation
+- Inventory investment: Current value
+- Purchase trends: Historical data
+
+## Supplier Management
+
+### Supplier Records
+
+Comprehensive supplier database:
+
+**Supplier Information:**
+- Legal name
+- NIT (tax ID)
+- Contact person
+- Phone and email
+- Address
+- Bank account details
+- Payment terms (30, 60, 90 days)
+- Default withholding rate
+
+### Supplier Reports
+
+Analyze supplier relationships:
+
+**Metrics:**
+- Total purchases per supplier
+- Average order value
+- Payment history
+- Price trends
+- Delivery reliability
+
+<Tip>
+  Use supplier reports to negotiate better terms with high-volume vendors.
+</Tip>
+
+## Document Management
+
+### Invoice Storage
+
+Supporting documents are stored securely:
+
+**Storage Location:**
+- Server directory: `uploads/soportes/`
+- Named: `soporte_[product]_[timestamp].[ext]`
+- Linked to inventory movements
+
+**Document Types:**
+- Purchase invoices
+- Payment receipts
+- Delivery notes
+- Credit notes
+- Withholding certificates
+
+### Document Retrieval
+
+**Access Methods:**
+1. Click "Ver" in inventory movements table
+2. Export with accounting reports
+3. Bulk download for period
+4. Direct file system access (admin)
+
+<Note>
+  Documents are stored for 5 years to comply with Colombian legal requirements for business records.
+</Note>
+
+## Integration with Accounting Software
+
+### Export Formats
+
+Data can be exported for:
+
+**Supported Software:**
+- Siigo
+- ContaFácil
+- Alegra
+- World Office
+- Generic Excel format
+
+**Export Fields:**
+- Account codes
+- Debit/credit entries
+- Cost centers
+- Tax codes
+- Vendor codes
+
+<Tip>
+  Contact support for custom export formats to match your specific accounting software requirements.
+</Tip>
+
+## Audit Trail
+
+Complete audit trail for all transactions:
+
+**Tracked Information:**
+- User who created entry
+- Creation timestamp
+- Modification history
+- Document uploads
+- Stock level changes
+
+**Audit Report:**
+- Filter by date range
+- Filter by user
+- Filter by transaction type
+- Export for external auditors
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Daily Recording" icon="calendar-day">
+    Record all purchases on the day they occur
+  </Card>
+  <Card title="Document Upload" icon="cloud-arrow-up">
+    Always attach invoice copies immediately
+  </Card>
+  <Card title="Monthly Reconciliation" icon="calendar-check">
+    Reconcile with bank statements monthly
+  </Card>
+  <Card title="Regular Backups" icon="database">
+    Export reports and back up documents weekly
+  </Card>
+</CardGroup>
+
+### Month-End Procedures
+
+<Accordion title="Recommended Month-End Checklist">
+  1. **Record all transactions** - Ensure all purchases are entered
+  2. **Upload documents** - Verify all invoices are attached
+  3. **Run reports** - Generate all accounting reports
+  4. **Export to Excel** - Create backups of financial data
+  5. **Reconcile accounts** - Match with supplier statements
+  6. **Physical inventory** - Count stock and adjust discrepancies
+  7. **Calculate COGS** - Use beginning + purchases - ending
+  8. **Review taxes** - Verify IVA and withholding calculations
+  9. **Close period** - Mark period as closed in accounting
+  10. **Backup everything** - Store reports and documents securely
+</Accordion>
+
+## Colombian Compliance
+
+### DIAN Requirements
+
+The system supports Colombian tax authority (DIAN) requirements:
+
+<CardGroup cols={2}>
+  <Card title="Invoice Details" icon="file-invoice">
+    Complete invoice information stored
+  </Card>
+  <Card title="Supplier NIT" icon="id-card">
+    Tax ID tracked for all vendors
+  </Card>
+  <Card title="Tax Calculations" icon="calculator">
+    IVA and withholdings properly recorded
+  </Card>
+  <Card title="Document Retention" icon="archive">
+    5-year document storage
+  </Card>
+</CardGroup>
+
+### Reporting to DIAN
+
+Generate required reports:
+
+- Monthly IVA declarations
+- Bimonthly withholding reports
+- Annual income tax preparation
+- Supplier information reports
+
+<Note>
+  While the system provides necessary data, consult with your accountant or tax advisor for final DIAN submissions.
+</Note>
+
+## Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| Missing IVA | Enter IVA amount manually if not auto-calculated |
+| Duplicate invoice | Use unique invoice numbers per supplier |
+| Export fails | Check that PhpSpreadsheet is installed |
+| Document missing | Re-upload using inventory movement edit |
+| Valuation incorrect | Verify all purchases have prices entered |
+
+## System Requirements
+
+### For Accounting Features
+
+**Server-side:**
+- PHP 7.4 or higher
+- PhpSpreadsheet library (for Excel)
+- PDO MySQL extension
+- File upload permissions
+
+**Client-side:**
+- Modern web browser
+- PDF reader for documents
+- Excel or compatible spreadsheet software
+
+## Support and Training
+
+For accounting system assistance:
+
+- **User manual:** Complete documentation available
+- **Video tutorials:** Step-by-step recording guides
+- **Support email:** accounting@computecnicos.com
+- **Accountant access:** Special read-only access available
+
+<Tip>
+  Consider scheduling a training session with your accounting team to maximize use of these features.
+</Tip>

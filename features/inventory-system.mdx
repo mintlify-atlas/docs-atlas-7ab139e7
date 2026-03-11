@@ -1,0 +1,493 @@
+---
+title: Inventory Management
+description: Professional inventory tracking system with movement history, stock control, and comprehensive reporting for administrators
+---
+
+## Overview
+
+The CompuTécnicos inventory management system provides administrators with complete control over product stock levels. Track inventory movements, manage suppliers, and maintain detailed records of all stock transactions with full accounting documentation.
+
+<Note>
+  This feature is only accessible to users with **administrator** role. Regular customers cannot access inventory management functions.
+</Note>
+
+## Accessing Inventory Management
+
+Administrators can access the inventory system:
+
+1. Log in with admin credentials
+2. Navigate to **Admin Panel**
+3. Click **"Inventario"** in the sidebar
+4. View the inventory movements table
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Movement Tracking" icon="arrows-rotate">
+    Complete history of all inventory entries, exits, and adjustments
+  </Card>
+  <Card title="Supplier Management" icon="building">
+    Track purchases by supplier with invoice details
+  </Card>
+  <Card title="Document Support" icon="file-pdf">
+    Upload and store PDF/JPG copies of invoices and receipts
+  </Card>
+  <Card title="Financial Tracking" icon="money-bill">
+    Record purchase prices, VAT, and withholdings for accounting
+  </Card>
+</CardGroup>
+
+## Movement Types
+
+The system tracks three types of inventory movements:
+
+### Entrada (Entry)
+
+Records new stock arriving:
+- **Used for:** Product purchases from suppliers
+- **Increases stock** quantity
+- **Requires:** Supplier, invoice, price details
+- **Accounting fields:** Active
+
+### Salida (Exit)
+
+Records stock leaving:
+- **Used for:** Customer orders, damages, returns
+- **Decreases stock** quantity
+- **Optional:** Reason for exit
+- **Accounting fields:** Inactive
+
+### Ajuste (Adjustment)
+
+Records stock corrections:
+- **Used for:** Inventory counts, corrections, manual adjustments
+- **Can increase or decrease** stock
+- **Requires:** Detailed reason
+- **Accounting fields:** Inactive
+
+<Tip>
+  Use "Ajuste" movements to correct discrepancies found during physical inventory counts.
+</Tip>
+
+## Creating Inventory Movements
+
+### Starting a New Movement
+
+1. Click **"+ Nuevo movimiento"** button
+2. Modal form opens
+3. Fill in required information
+4. Upload supporting documents
+5. Click **"Registrar"** to save
+
+### Form Fields
+
+#### Basic Information
+
+| Field | Description | Required |
+|-------|-------------|----------|
+| **Tipo** | Movement type (Entrada/Salida/Ajuste) | Yes |
+| **Producto** | Product being moved | Yes |
+| **Cantidad** | Number of units | Yes |
+| **Motivo** | Reason for movement | Yes |
+
+#### Accounting Fields (Entrada only)
+
+<Accordion title="Accounting Information Fields">
+  These fields appear only when movement type is "Entrada" (Entry):
+
+  **Proveedor (Supplier):**
+  - Select from registered suppliers
+  - Required for purchase tracking
+  - Links to supplier database
+
+  **Número de factura (Invoice Number):**
+  - Unique invoice identifier
+  - Required for legal compliance
+  - Used for matching documents
+
+  **Fecha de factura (Invoice Date):**
+  - Date on the invoice document
+  - Can differ from movement date
+  - Important for accounting periods
+
+  **Precio unitario (Unit Price):**
+  - Cost per unit purchased
+  - In Colombian Pesos (COP)
+  - Used for inventory valuation
+
+  **IVA (VAT):**
+  - Total VAT amount paid
+  - Optional field
+  - For tax reporting
+
+  **Retención (Withholding):**
+  - Tax withholding amount
+  - Optional field
+  - For Colombian tax compliance
+
+  **Soporte documental (Documentary Support):**
+  - Upload invoice copy (PDF/JPG)
+  - One file per product/purchase
+  - Stored securely on server
+</Accordion>
+
+### Document Upload System
+
+<Note>
+  The system supports **one document per product/movement**, similar to profile pictures. Uploading a new document replaces the previous one.
+</Note>
+
+#### Supported Formats
+- **PDF** - Preferred for invoices
+- **JPG/JPEG** - For scanned documents
+- **Maximum size:** Configured in server settings
+
+#### File Naming Convention
+
+Documents are automatically named:
+```
+soporte_[product_id]_[timestamp].[extension]
+```
+
+Example: `soporte_45_1678912345.pdf`
+
+#### Document Management
+
+1. **Upload:** Attached during movement creation
+2. **Replace:** New upload overwrites previous document
+3. **View:** Click "Ver" link in movements table
+4. **Delete:** Automatically removed when movement is deleted
+
+<Tip>
+  Keep original documents archived separately. The system provides convenient access but shouldn't be your only backup.
+</Tip>
+
+## Viewing Inventory Movements
+
+### Movements Table
+
+The main table displays all movements with columns:
+
+| Column | Information |
+|--------|-------------|
+| **Producto** | Product name |
+| **Tipo** | Movement type badge |
+| **Cant.** | Quantity moved |
+| **Proveedor** | Supplier name (entries only) |
+| **Factura** | Invoice number |
+| **Precio U.** | Unit price |
+| **IVA** | VAT amount |
+| **Ret.** | Withholding amount |
+| **Motivo** | Movement reason |
+| **Usuario** | Admin who created movement |
+| **Fecha** | Date and time |
+| **Sop.** | Document support link |
+| **Acc.** | Actions (delete button) |
+
+### Table Features
+
+<Accordion title="Table Functionality">
+  **Sticky Header:**
+  - Column headers remain visible while scrolling
+  - Makes it easy to reference column names
+
+  **Scrollable Content:**
+  - Vertical scroll for many movements
+  - Horizontal scroll on small screens
+  - Fixed table layout for consistent columns
+
+  **Compact Design:**
+  - Small font size (0.7rem) to fit more data
+  - Text truncation with ellipsis
+  - Hover tooltips for full text
+
+  **Color-Coded Badges:**
+  - Green: Entrada (Entry)
+  - Red: Salida (Exit)
+  - Yellow: Ajuste (Adjustment)
+
+  **Pagination:**
+  - 10 movements per page
+  - Page controls at bottom
+  - Maintains scroll position
+</Accordion>
+
+## Stock Control
+
+### Automatic Stock Updates
+
+Inventory movements automatically update product stock:
+
+<Accordion title="Stock Calculation Logic">
+  **Entrada (Entry):**
+  ```
+  New Stock = Current Stock + Quantity
+  ```
+
+  **Salida (Exit):**
+  ```
+  New Stock = Current Stock - Quantity
+  ```
+  - Validation: Cannot go below 0
+  - Warning if insufficient stock
+
+  **Ajuste (Adjustment):**
+  ```
+  New Stock = Current Stock ± Quantity
+  ```
+  - Can be positive or negative
+  - Use for corrections
+</Accordion>
+
+### Stock Validation
+
+The system prevents common errors:
+
+- **Negative stock:** Exits blocked if would result in negative inventory
+- **Invalid quantities:** Must be positive integers
+- **Duplicate invoices:** Warning for duplicate invoice numbers
+
+<Note>
+  Stock levels are updated within a database transaction to ensure data integrity. If any part of the movement fails, the entire operation is rolled back.
+</Note>
+
+## Supplier Management
+
+Suppliers are managed separately and referenced in movements:
+
+### Supplier Information
+
+Each supplier record includes:
+- Supplier name
+- Contact information
+- Tax ID (NIT for Colombian businesses)
+- Address
+- Payment terms
+
+### Linking Suppliers
+
+When creating an entry movement:
+1. Select supplier from dropdown
+2. System links movement to supplier
+3. Used for reporting and analysis
+4. Tracks purchase history by supplier
+
+## Document Support Management
+
+### Viewing Documents
+
+To view uploaded documents:
+
+1. Locate movement in table
+2. Click **"Ver"** link in "Sop." column
+3. Document opens in new tab
+4. Or downloads to your device
+
+<Tip>
+  Keep your browser's pop-up blocker disabled for the admin panel to ensure documents open properly.
+</Tip>
+
+### Cleaning Orphaned Files
+
+The system includes a maintenance tool:
+
+1. Click **"🗑️ Limpiar Soportes"** button
+2. View orphaned files statistics
+3. Review files without database references
+4. Execute cleanup to remove orphaned files
+
+<Accordion title="What Are Orphaned Files?">
+  Orphaned files occur when:
+  - Movements are deleted but files remain
+  - Upload process is interrupted
+  - Database records are corrupted
+  - Manual file deletion of DB records
+
+  The cleanup tool:
+  - Scans the uploads/soportes directory
+  - Compares with database records
+  - Identifies files without matching movements
+  - Offers safe deletion of orphaned files
+</Accordion>
+
+<Note>
+  Always backup important documents before running the cleanup tool. While the tool is safe, backups are best practice.
+</Note>
+
+## Deleting Movements
+
+### Deletion Process
+
+1. Click **"Eliminar"** button on movement row
+2. Confirmation modal appears
+3. Verify movement details
+4. Click **"Sí, eliminar"** to confirm
+5. Movement and associated document are deleted
+
+### What Happens When Deleting
+
+<Accordion title="Deletion Effects">
+  **Stock Reversal:**
+  - Entry movements: Stock is decreased
+  - Exit movements: Stock is increased
+  - Adjustment movements: Reversed
+
+  **Document Deletion:**
+  - Associated support document is removed from server
+  - File physically deleted from filesystem
+
+  **Permanent Action:**
+  - Cannot be undone
+  - Movement removed from history
+  - No record remains in system
+
+  **Transaction Safety:**
+  - Wrapped in database transaction
+  - All-or-nothing operation
+  - Rollback if any step fails
+</Accordion>
+
+<Note>
+  Deleting movements should be done carefully as it affects stock levels and cannot be undone. Consider adding a correcting adjustment movement instead of deleting.
+</Note>
+
+## Accounting Integration
+
+### Colombian Compliance
+
+The inventory system supports Colombian accounting requirements:
+
+<CardGroup cols={2}>
+  <Card title="Supplier Tracking" icon="building">
+    NIT and full supplier details
+  </Card>
+  <Card title="Invoice Documentation" icon="file-invoice">
+    Invoice numbers and dates
+  </Card>
+  <Card title="VAT Control" icon="percent">
+    IVA tracking for tax reporting
+  </Card>
+  <Card title="Withholdings" icon="receipt">
+    Retención amounts recorded
+  </Card>
+</CardGroup>
+
+### Inventory Valuation
+
+The system calculates inventory value:
+
+**Average Cost Method:**
+- Weighted average of purchase prices
+- Updates with each entry movement
+- Used for financial reporting
+
+<Accordion title="Valuation Calculation">
+  ```
+  Average Cost = Total Cost of Inventory / Total Units
+
+  Example:
+  - Starting: 10 units @ $100 = $1,000
+  - Purchase: 5 units @ $120 = $600
+  - New Average: $1,600 / 15 = $106.67 per unit
+  ```
+
+  This average cost is used to value current stock for financial statements.
+</Accordion>
+
+## Reporting
+
+Inventory movements feed into several reports:
+
+### Available Reports
+
+1. **General Report** - All movements with full details
+2. **Purchase Report** - Only entries with supplier and pricing
+3. **Valued Inventory** - Current stock valued at average cost
+4. **Excel Export** - All reports exportable to Excel
+
+<Tip>
+  Access reports from the **Admin → Reportes** section. The accounting report provides comprehensive inventory analysis.
+</Tip>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Document Everything" icon="file-circle-check">
+    Always upload invoice copies for entry movements
+  </Card>
+  <Card title="Detailed Reasons" icon="message">
+    Write clear, specific reasons for all movements
+  </Card>
+  <Card title="Regular Counts" icon="clipboard-list">
+    Perform physical counts and adjust discrepancies
+  </Card>
+  <Card title="Supplier Verification" icon="shield-check">
+    Verify supplier details before recording large purchases
+  </Card>
+</CardGroup>
+
+### Movement Recording Tips
+
+- **Be prompt:** Record movements same day they occur
+- **Be accurate:** Double-check quantities and prices
+- **Be complete:** Fill all accounting fields for entries
+- **Be consistent:** Use standard naming for suppliers
+
+### Document Management Tips
+
+- **Scan quality:** Use high resolution for readability
+- **PDF preferred:** Convert images to PDF when possible
+- **File size:** Optimize documents to reduce storage
+- **Regular cleanup:** Run orphaned files cleanup monthly
+
+## Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| Cannot upload document | Check file format (PDF/JPG only) |
+| Stock goes negative | Cannot exit more than available |
+| Duplicate invoice warning | Use unique invoice numbers |
+| Document won't open | Disable pop-up blocker |
+| Missing accounting fields | Select "Entrada" as movement type |
+
+### Permission Errors
+
+If you cannot create movements:
+- Verify you're logged in as administrator
+- Check role permissions in user settings
+- Contact system administrator
+
+## Security and Permissions
+
+Inventory management includes security features:
+
+- **Admin-only access:** Regular users cannot view or modify
+- **Audit trail:** All movements logged with user and timestamp
+- **Transaction safety:** Database transactions prevent data corruption
+- **File security:** Documents stored outside web root when possible
+
+## System Maintenance
+
+### Regular Tasks
+
+<Accordion title="Recommended Maintenance Schedule">
+  **Daily:**
+  - Record all inventory movements
+  - Upload supporting documents
+
+  **Weekly:**
+  - Review movement history for errors
+  - Verify stock levels match physical count
+
+  **Monthly:**
+  - Run orphaned files cleanup
+  - Export inventory reports
+  - Reconcile with accounting system
+
+  **Quarterly:**
+  - Full physical inventory count
+  - Adjust discrepancies
+  - Backup all documents
+</Accordion>

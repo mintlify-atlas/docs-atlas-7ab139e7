@@ -1,0 +1,341 @@
+---
+title: 'Orders API'
+description: 'Create and manage PayPal orders for the CompuTécnicos e-commerce platform'
+---
+
+## Overview
+
+The Orders API allows you to create and capture PayPal orders for customer purchases. The API handles currency conversion from Colombian Pesos (COP) to USD, integrates with PayPal's checkout system, and automatically updates order status and inventory levels.
+
+<Note>
+All order operations require a valid database session with an active order (pedido) record.
+</Note>
+
+---
+
+## Create Order
+
+<CodeGroup>
+```bash Request
+POST /paypal_create_order.php
+Content-Type: application/json
+
+{
+  "pedido_id": 123
+}
+```
+
+```json Response
+{
+  "id": "5O190127TN364715T",
+  "status": "CREATED",
+  "links": [
+    {
+      "href": "https://api.sandbox.paypal.com/v2/checkout/orders/5O190127TN364715T",
+      "rel": "self",
+      "method": "GET"
+    },
+    {
+      "href": "https://www.sandbox.paypal.com/checkoutnow?token=5O190127TN364715T",
+      "rel": "approve",
+      "method": "GET"
+    },
+    {
+      "href": "https://api.sandbox.paypal.com/v2/checkout/orders/5O190127TN364715T/capture",
+      "rel": "capture",
+      "method": "POST"
+    }
+  ]
+}
+```
+</CodeGroup>
+
+Creates a new PayPal order for an existing pedido (order) in the database. The order amount is automatically converted from COP to USD based on the configured exchange rate.
+
+### Request Body
+
+<ParamField body="pedido_id" type="integer" required>
+  The ID of the existing order (pedido) in the database. This order must have a valid `total` value.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="id" type="string">
+  The PayPal order ID. Use this to redirect the customer to PayPal for approval.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Order status. Typically `CREATED` for new orders.
+</ResponseField>
+
+<ResponseField name="links" type="array">
+  Array of HATEOAS links for order operations. The `approve` link redirects users to PayPal checkout.
+</ResponseField>
+
+### Currency Conversion
+
+The API automatically converts the order total from Colombian Pesos (COP) to USD:
+
+```php
+// Default exchange rate: 0.00025 (configurable in paypal_config.php)
+$rate = 0.00025;
+$total_cop = 500000; // COP
+$amount_usd = $total_cop * $rate; // = 125.00 USD
+```
+
+<Note>
+The minimum order amount is $0.01 USD. PayPal enforces this minimum for all transactions.
+</Note>
+
+### Order Description
+
+The order description is automatically generated from the order items:
+
+```php
+// Example: "Pedido #123 - Laptop HP x1, Mouse Logitech x2"
+function buildDescription($pedido_id) {
+    // Fetches products and quantities from detalle_pedido
+    // Truncated to 127 characters for PayPal compatibility
+}
+```
+
+### Error Responses
+
+<ResponseField name="error" type="string">
+  Error message when order creation fails
+</ResponseField>
+
+**Common Errors:**
+- `pedido_id requerido` - Missing pedido_id in request body (400)
+- `Pedido no encontrado` - Order doesn't exist in database (500)
+- `Error obteniendo token PayPal` - PayPal authentication failed (500)
+
+---
+
+## Capture Order
+
+<CodeGroup>
+```bash Request
+POST /paypal_capture_order.php
+Content-Type: application/json
+
+{
+  "orderID": "5O190127TN364715T",
+  "pedido_id": 123
+}
+```
+
+```json Response
+{
+  "id": "5O190127TN364715T",
+  "status": "COMPLETED",
+  "purchase_units": [
+    {
+      "reference_id": "default",
+      "amount": {
+        "currency_code": "USD",
+        "value": "125.00"
+      },
+      "payments": {
+        "captures": [
+          {
+            "id": "8AP35903R88034942",
+            "status": "COMPLETED",
+            "amount": {
+              "currency_code": "USD",
+              "value": "125.00"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+</CodeGroup>
+
+Captures payment for a PayPal order that has been approved by the customer. On successful capture, the API:
+
+1. Updates the order status to `pagado` (paid)
+2. Reduces product inventory levels
+3. Clears the shopping cart from session
+4. Records the status change in order history
+
+### Request Body
+
+<ParamField body="orderID" type="string" required>
+  The PayPal order ID returned from the create order endpoint
+</ParamField>
+
+<ParamField body="pedido_id" type="integer" required>
+  The corresponding database order ID
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="id" type="string">
+  The PayPal order ID
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Order status. `COMPLETED` indicates successful payment capture.
+</ResponseField>
+
+<ResponseField name="purchase_units" type="array">
+  Array of purchase unit details including payment capture information
+</ResponseField>
+
+<ResponseField name="purchase_units[].payments.captures" type="array">
+  Array of capture transactions. Check `status: "COMPLETED"` to verify successful payment.
+</ResponseField>
+
+### Post-Capture Actions
+
+When an order is successfully captured (`status === 'COMPLETED'`), the system automatically:
+
+```php
+// 1. Update order status
+UPDATE pedidos SET estado = 'pagado' WHERE id = ?
+
+// 2. Record status history
+INSERT INTO pedido_estados (id_pedido, estado, comentario) 
+VALUES (?, 'pagado', 'Actualización automática por PayPal')
+
+// 3. Reduce inventory
+UPDATE productos 
+SET stock = GREATEST(0, stock - cantidad) 
+WHERE id IN (SELECT id_producto FROM detalle_pedido WHERE id_pedido = ?)
+
+// 4. Clear shopping cart
+$_SESSION['carrito'] = [];
+$_SESSION['checkout_success'] = 'Pago completado. Carrito vaciado.';
+```
+
+### Error Responses
+
+<ResponseField name="error" type="string">
+  Error message when order capture fails
+</ResponseField>
+
+**Common Errors:**
+- `orderID y pedido_id requeridos` - Missing required parameters (400)
+- `Error capturando orden PayPal` - PayPal capture failed (500)
+
+---
+
+## Implementation Example
+
+Here's a complete client-side implementation using the PayPal JavaScript SDK:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=USD"></script>
+</head>
+<body>
+    <div id="paypal-button-container"></div>
+
+    <script>
+        const PEDIDO_ID = 123; // Your order ID
+
+        paypal.Buttons({
+            // Create order on server
+            createOrder: async function() {
+                const response = await fetch('/paypal_create_order.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pedido_id: PEDIDO_ID })
+                });
+                const order = await response.json();
+                return order.id;
+            },
+
+            // Capture payment after customer approval
+            onApprove: async function(data) {
+                const response = await fetch('/paypal_capture_order.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderID: data.orderID,
+                        pedido_id: PEDIDO_ID
+                    })
+                });
+                const details = await response.json();
+                
+                if (details.status === 'COMPLETED') {
+                    window.location.href = '/gracias.php?pedido=' + PEDIDO_ID;
+                } else {
+                    alert('Payment could not be completed');
+                }
+            },
+
+            // Handle errors
+            onError: function(err) {
+                console.error('PayPal error:', err);
+                alert('An error occurred during payment');
+            }
+        }).render('#paypal-button-container');
+    </script>
+</body>
+</html>
+```
+
+---
+
+## Configuration
+
+The PayPal integration is configured in `config/paypal_config.php`:
+
+```php
+return [
+    'client_id' => getenv('PAYPAL_CLIENT_ID'),
+    'client_secret' => getenv('PAYPAL_CLIENT_SECRET'),
+    'environment' => 'sandbox', // or 'live'
+    'currency' => 'USD',
+    'exchange_rate_cop_to_usd' => 0.00025 // COP to USD conversion rate
+];
+```
+
+<Warning>
+Keep your PayPal credentials secure! Never commit `client_id` or `client_secret` to version control. Use environment variables instead.
+</Warning>
+
+---
+
+## Database Schema
+
+The Orders API interacts with these database tables:
+
+### pedidos (Orders)
+```sql
+CREATE TABLE pedidos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    total DECIMAL(10,2) NOT NULL,
+    estado ENUM('pendiente','pagado','preparacion','enviado','entregado','cancelado'),
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### detalle_pedido (Order Details)
+```sql
+CREATE TABLE detalle_pedido (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT NOT NULL,
+    id_producto INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10,2) NOT NULL
+);
+```
+
+### pedido_estados (Order Status History)
+```sql
+CREATE TABLE pedido_estados (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_pedido INT NOT NULL,
+    estado VARCHAR(50) NOT NULL,
+    comentario TEXT,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```

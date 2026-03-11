@@ -1,0 +1,326 @@
+---
+title: Accounting Reports
+description: Professional accounting reports with Excel export for audit and tax compliance
+---
+
+CompuTécnicos provides comprehensive accounting reports that help you track inventory movements, calculate taxes, and generate audit-ready documentation for Colombian regulatory compliance.
+
+## Accessing Reports
+
+To access accounting reports:
+
+1. Navigate to **Admin → Reports**
+2. In the **"Professional Accounting Report"** section
+3. Click **"View Complete Report"**
+4. Apply filters as needed
+5. Export to Excel if required
+
+## Report Types
+
+The system offers three specialized accounting reports:
+
+### General Report
+
+Shows all inventory movements with complete accounting information:
+
+- Purchase entries (with supplier and tax data)
+- Sales exits (with customer information)
+- Inventory adjustments
+- Date range filtering
+- Financial KPIs summary
+
+**Use cases**:
+- Monthly accounting reconciliation
+- Period-end closing
+- Full audit trail
+- Tax preparation
+
+### Purchase Report
+
+Focused view of all purchase transactions:
+
+- Supplier information
+- Invoice numbers
+- Unit prices and totals
+- IVA paid amounts
+- Withholding tax applied
+- Supporting documents
+
+**Use cases**:
+- IVA deduction calculations
+- Supplier payment reconciliation
+- Purchase order verification
+- DIAN audit support
+
+<Warning>
+  The Purchase Report only shows entries with type "entrada" (purchase). Ensure all purchases are correctly classified.
+</Warning>
+
+### Valued Inventory Report
+
+Current inventory valuation at average cost:
+
+- Product name and category
+- Current stock quantity
+- Average unit price
+- Total inventory value
+- Overall inventory valuation
+
+**Use cases**:
+- Financial statement preparation
+- Balance sheet support
+- Inventory insurance valuation
+- Cost of goods sold calculation
+
+## Report Filtering
+
+### Date Range Filters
+
+<ParamField path="fecha_inicio" type="date" required>
+  Start Date - Beginning of the reporting period. Defaults to first day of current month.
+</ParamField>
+
+<ParamField path="fecha_fin" type="date" required>
+  End Date - End of the reporting period. Defaults to last day of current month.
+</ParamField>
+
+To filter by date range:
+
+1. Select **Start Date** and **End Date**
+2. Click **"Filter"**
+3. The report refreshes with data for the selected period
+
+### Report Type Selection
+
+<ParamField path="tipo" type="enum" required>
+  Report Type - Select the type of report to generate
+  
+  - `general` - All inventory movements
+  - `compras` - Purchase transactions only  
+  - `inventario` - Valued inventory snapshot
+</ParamField>
+
+## Financial KPIs
+
+The General Report displays key financial indicators:
+
+### Purchases KPI
+
+- **Total Purchases**: Sum of all purchase amounts in the period
+- **IVA Paid**: Total IVA paid on purchases (input tax)
+- Displayed in green card
+
+### Sales KPI
+
+- **Total Sales**: Sum of all sales amounts in the period
+- **IVA Collected**: Total IVA collected from customers (output tax)
+- Displayed in blue card
+
+### Profit KPI
+
+- **Gross Profit**: Sales minus Purchases
+- **Withholdings**: Total withholding tax amounts
+- Displayed in yellow card
+
+```text
+Gross Profit = Total Sales - Total Purchases
+Net IVA Position = IVA Collected - IVA Paid
+```
+
+## Excel Export
+
+All reports can be exported to Excel format for external analysis and archiving.
+
+### Exporting Reports
+
+1. Configure the desired filters (date range, report type)
+2. Click **"Export Excel"** button
+3. A professional Excel file is generated and downloaded
+4. The file includes:
+   - Report title and date range
+   - Column headers with formatting
+   - All data rows with proper formatting
+   - Totals and summaries (where applicable)
+   - Colombian currency formatting
+
+### Excel File Structure
+
+Exported Excel files include:
+
+- **Professional styling**: Headers with background colors, borders, bold text
+- **Column auto-sizing**: Columns automatically sized to content
+- **Number formatting**: Currency values formatted as Colombian Pesos
+- **Date formatting**: Dates in DD/MM/YYYY format
+- **Frozen headers**: Top row frozen for easy scrolling
+
+### Technical Requirements
+
+Excel export requires **PhpSpreadsheet** library:
+
+#### Installation with Composer (Recommended)
+
+```bash
+# Navigate to project root
+cd /var/www/computecnicos
+
+# Install PhpSpreadsheet
+composer require phpoffice/phpspreadsheet
+```
+
+#### Manual Installation
+
+1. Download PhpSpreadsheet from https://github.com/PHPOffice/PhpSpreadsheet
+2. Extract to `vendor/` directory
+3. Ensure `vendor/autoload.php` exists
+
+<Warning>
+  Excel export will fail with "Class 'PhpOffice\PhpSpreadsheet\Spreadsheet' not found" error if PhpSpreadsheet is not installed.
+</Warning>
+
+### Excel Export Error Handling
+
+Common issues:
+
+**Error: Class not found**
+```bash
+# Install dependencies
+composer install
+```
+
+**Error: Permission denied**
+```bash
+# Fix permissions
+chmod -R 755 vendor/
+```
+
+**Error: Extension zip not found**
+```bash
+# Ubuntu/Debian
+sudo apt-get install php-zip
+
+# CentOS/RHEL  
+sudo yum install php-zip
+
+# Restart web server
+sudo systemctl restart apache2
+```
+
+## Report Data Fields
+
+### General Report Columns
+
+| Column | Description |
+|--------|-------------|
+| Fecha | Transaction date |
+| Tipo | Movement type (Entry/Exit/Adjustment) |
+| Producto | Product name |
+| Cantidad | Quantity moved |
+| Precio Unit. | Unit price at transaction time |
+| IVA | Tax amount |
+| Retención | Withholding tax |
+| Usuario | User who recorded the transaction |
+
+### Purchase Report Columns
+
+| Column | Description |
+|--------|-------------|
+| Fecha | Purchase date |
+| Producto | Product purchased |
+| Proveedor | Supplier name |
+| Factura | Invoice number |
+| Cantidad | Quantity purchased |
+| Precio Unit. | Unit purchase price |
+| Total | Line total (quantity × price) |
+| IVA | IVA paid on purchase |
+| Retención | Withholding applied |
+
+### Valued Inventory Columns
+
+| Column | Description |
+|--------|-------------|
+| Producto | Product name |
+| Categoría | Product category |
+| Stock Actual | Current quantity on hand |
+| Precio Promedio | Weighted average cost |
+| Valor Total | Total value (stock × avg price) |
+
+## Using Reports for Tax Compliance
+
+### Monthly IVA Declaration
+
+1. Generate **General Report** for the tax month
+2. Review IVA Collected and IVA Paid KPIs
+3. Calculate net IVA: `IVA Collected - IVA Paid`
+4. Export to Excel for DIAN filing support
+5. Attach supporting documents from inventory movements
+
+### Withholding Tax Reports
+
+1. Generate **Purchase Report** for the period
+2. Sum all "Retención" column values
+3. Verify against payment records
+4. Export for tax return preparation
+
+### Year-End Inventory Valuation
+
+1. Generate **Valued Inventory Report** as of December 31
+2. Use for financial statement preparation
+3. Provide to accountant for balance sheet
+4. Archive for audit purposes
+
+<Warning>
+  Always verify report totals against your general ledger before filing tax returns.
+</Warning>
+
+## Report Storage and Archiving
+
+### Best Practices
+
+- **Export monthly reports** at month-end and save with descriptive filenames
+- **Naming convention**: `Reporte_[Type]_[YYYY-MM]_[Date].xlsx`
+  - Example: `Reporte_Compras_2026-03_2026-03-31.xlsx`
+- **Store reports** in dated folders for easy retrieval
+- **Backup regularly** to external storage or cloud
+- **Keep for 5 years** as required by Colombian law
+
+### Audit Trail
+
+Reports provide a complete audit trail showing:
+
+- Who performed each transaction (user field)
+- When it occurred (date/time)
+- What was transacted (product, quantity, prices)
+- Supporting documentation (invoice numbers, files)
+- Tax calculations (IVA, withholdings)
+
+This audit trail satisfies DIAN requirements for transaction documentation.
+
+## Troubleshooting
+
+### Empty Reports
+
+**Problem**: Report shows "No records in selected period"
+
+**Solutions**:
+- Verify date range includes transaction dates
+- Check that inventory movements were recorded
+- Ensure movement type matches report type (e.g., "entrada" for Purchase Report)
+
+### Missing Accounting Data
+
+**Problem**: Report shows "—" for tax or supplier fields
+
+**Solutions**:
+- These fields are optional on exit movements
+- Edit inventory movements to add missing data
+- Ensure purchase movements include supplier and invoice information
+
+### Incorrect Totals
+
+**Problem**: KPI totals don't match expectations
+
+**Solutions**:
+- Verify all movements are properly classified (entrada/salida)
+- Check for duplicate movements
+- Ensure price and tax fields are accurately recorded
+- Review inventory adjustments that may affect totals

@@ -1,0 +1,152 @@
+---
+title: 'Database Configuration'
+description: 'Configure MySQL database connection for CompuTécnicos'
+icon: 'database'
+---
+
+## Overview
+
+CompuTécnicos uses MySQL with PDO for database connectivity. The database configuration is centralized in `config/database.php` and uses environment variables for flexibility across different environments.
+
+## Connection Parameters
+
+The following parameters control your database connection:
+
+<ParamField path="DB_HOST" type="string" default="localhost">
+  Database server hostname or IP address. Use `localhost` for local development or your database server IP for remote connections.
+</ParamField>
+
+<ParamField path="DB_NAME" type="string" default="computecnicos">
+  The name of the MySQL database to connect to. This database must exist before running the application.
+</ParamField>
+
+<ParamField path="DB_USER" type="string" default="root">
+  MySQL username with appropriate permissions to access the database.
+</ParamField>
+
+<ParamField path="DB_PASS" type="string" default="982/gs2pcbV76093fny34_">
+  Password for the database user. 
+  
+  <Warning>Change the default password in production environments for security.</Warning>
+</ParamField>
+
+<ParamField path="DB_PORT" type="string" default="3306">
+  MySQL server port. The standard MySQL port is 3306.
+</ParamField>
+
+## PDO Configuration
+
+The database connection uses the following PDO options for optimal performance and security:
+
+- **ATTR_ERRMODE**: Set to `PDO::ERRMODE_EXCEPTION` to throw exceptions on database errors
+- **ATTR_DEFAULT_FETCH_MODE**: Set to `PDO::FETCH_ASSOC` for associative array results
+- **ATTR_PERSISTENT**: Enabled to reuse connections and reduce latency with remote databases
+- **ATTR_EMULATE_PREPARES**: Disabled to use native prepared statements for better security
+- **MYSQL_ATTR_FOUND_ROWS**: Enabled to return the number of found rows instead of affected rows
+
+## Configuration Example
+
+Set these variables in your `.env` file:
+
+```bash
+DB_HOST=localhost
+DB_NAME=computecnicos
+DB_USER=computecnicos_user
+DB_PASS=your_secure_password
+DB_PORT=3306
+```
+
+## Docker Configuration
+
+When using Docker, additional environment variables are available:
+
+<ParamField path="MYSQL_ROOT_PASSWORD" type="string" default="root_secret">
+  Root password for the MySQL container. Required when initializing the MySQL Docker container.
+  
+  <Warning>Use a strong password and never commit this to version control.</Warning>
+</ParamField>
+
+### Docker Ports
+
+<ParamField path="DB_PORT" type="string" default="3306">
+  The port to expose MySQL on the host machine.
+</ParamField>
+
+<ParamField path="PMA_PORT" type="string" default="8081">
+  Port for phpMyAdmin web interface to manage your database.
+</ParamField>
+
+## Connection String
+
+The application constructs the following PDO connection string:
+
+```php
+mysql:host={DB_HOST};port={DB_PORT};dbname={DB_NAME};charset=utf8mb4
+```
+
+The `utf8mb4` charset is used to support full Unicode, including emojis and special characters.
+
+## Error Handling
+
+If the database connection fails, the application will terminate with an error message:
+
+```
+Error de conexión a la base de datos: {error_message}
+```
+
+<Warning>
+In production, consider logging errors to a file instead of displaying them to users to avoid exposing sensitive database information.
+</Warning>
+
+## Security Best Practices
+
+<Steps>
+  <Step title="Use Strong Passwords">
+    Always use strong, unique passwords for database users. Avoid default passwords in production.
+  </Step>
+  
+  <Step title="Limit Database Permissions">
+    Create a dedicated database user with only the necessary permissions. Avoid using the root user.
+  </Step>
+  
+  <Step title="Use Environment Variables">
+    Never hardcode database credentials in your code. Always use environment variables.
+  </Step>
+  
+  <Step title="Secure the .env File">
+    Ensure your `.env` file is not committed to version control and has restricted file permissions (chmod 600).
+  </Step>
+  
+  <Step title="Enable SSL/TLS">
+    For remote database connections, consider enabling SSL/TLS encryption.
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+### Connection Refused
+
+If you see "Connection refused" errors:
+
+- Verify MySQL is running: `sudo systemctl status mysql`
+- Check that the port is correct (default is 3306)
+- Ensure firewall rules allow the connection
+
+### Access Denied
+
+If you see "Access denied" errors:
+
+- Verify the username and password are correct
+- Check that the user has permissions on the database:
+  ```sql
+  GRANT ALL PRIVILEGES ON computecnicos.* TO 'computecnicos_user'@'localhost';
+  FLUSH PRIVILEGES;
+  ```
+
+### Database Does Not Exist
+
+Create the database manually:
+
+```sql
+CREATE DATABASE computecnicos CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```

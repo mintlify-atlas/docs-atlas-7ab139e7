@@ -1,0 +1,575 @@
+---
+title: Electronic Invoicing
+description: Colombian-compliant electronic invoicing system with integration to authorized providers for DIAN compliance
+---
+
+## Overview
+
+CompuTécnicos includes electronic invoicing (facturación electrónica) capabilities compliant with Colombian DIAN regulations. The system integrates with authorized electronic invoicing providers to generate, transmit, and store legally valid invoices.
+
+<Note>
+  Electronic invoicing is mandatory in Colombia for businesses meeting certain criteria. This feature ensures your e-commerce platform is DIAN-compliant.
+</Note>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="DIAN Compliance" icon="shield-check">
+    Meets all Colombian electronic invoicing requirements
+  </Card>
+  <Card title="Provider Integration" icon="plug">
+    Supports Alegra and Siigo authorized providers
+  </Card>
+  <Card title="Automatic Generation" icon="wand-magic-sparkles">
+    Invoices created automatically when orders are paid
+  </Card>
+  <Card title="PDF Download" icon="file-pdf">
+    Customers can download PDF invoices with CUFE code
+  </Card>
+</CardGroup>
+
+## Colombian Electronic Invoicing
+
+### Legal Requirements
+
+In Colombia, electronic invoices must include:
+
+<Accordion title="DIAN-Required Elements">
+  **Supplier Information:**
+  - Legal business name
+  - NIT (tax identification number)
+  - Business address
+  - Economic activity code
+  - Tax regime
+
+  **Customer Information:**
+  - Full name or business name
+  - ID number or NIT
+  - Email address
+  - Billing address
+
+  **Invoice Details:**
+  - Consecutive invoice number
+  - Invoice date and time
+  - Currency (COP)
+  - Payment method
+  - Payment terms
+
+  **Line Items:**
+  - Product description
+  - Quantity
+  - Unit price
+  - Tax rate (IVA)
+  - Line total
+
+  **Totals:**
+  - Subtotal
+  - Total IVA
+  - Total amount
+
+  **Technical Elements:**
+  - CUFE (Código Único de Factura Electrónica)
+  - QR code with validation URL
+  - Digital signature
+  - DIAN authorization number
+</Accordion>
+
+### CUFE Code
+
+The CUFE is a unique identifier for each electronic invoice:
+
+- **Purpose:** Validates invoice authenticity
+- **Format:** 96-character alphanumeric string
+- **Generation:** Created by combining invoice data with cryptographic hash
+- **Verification:** Can be validated on DIAN website
+
+<Tip>
+  The CUFE code appears at the bottom of every electronic invoice and can be used to verify the invoice's legitimacy with DIAN.
+</Tip>
+
+## Supported Providers
+
+### Alegra
+
+Integration with Alegra's electronic invoicing platform:
+
+**Features:**
+- Real-time invoice transmission to DIAN
+- Automatic CUFE generation
+- PDF invoice generation with watermark
+- Invoice status tracking
+- Customer portal access
+
+**Configuration:**
+Set in `config/factura_config.php`:
+
+```php
+'provider' => 'alegra',
+'alegra' => [
+    'token' => 'your_alegra_api_token',
+    'email' => 'your_alegra_account_email'
+]
+```
+
+### Siigo
+
+Integration with Siigo's invoicing system:
+
+**Features:**
+- Complete accounting integration
+- Inventory sync
+- Customer management
+- Multi-document support (invoices, credit notes)
+- Comprehensive reporting
+
+**Configuration:**
+Set in `config/factura_config.php`:
+
+```php
+'provider' => 'siigo',
+'siigo' => [
+    'client_id' => 'your_client_id',
+    'client_secret' => 'your_client_secret',
+    'username' => 'your_username',
+    'password' => 'your_password'
+]
+```
+
+<Note>
+  Both providers are DIAN-authorized and provide the legal guarantees required for electronic invoicing in Colombia.
+</Note>
+
+## Invoicing Workflow
+
+### Automatic Invoice Generation
+
+Invoices are generated automatically:
+
+1. **Customer places order** in the e-commerce platform
+2. **Payment is confirmed** via PayPal
+3. **Order status changes** to "Pagado" (Paid)
+4. **System triggers** invoice generation
+5. **API call sent** to configured provider (Alegra/Siigo)
+6. **Invoice is created** with CUFE and transmitted to DIAN
+7. **PDF is generated** and stored in the system
+8. **Customer receives email** with invoice attached
+
+<Accordion title="Detailed Invoice Generation Process">
+  **Step 1: Order Data Collection**
+  - Gather customer information from order
+  - Collect product details from order items
+  - Calculate taxes (19% IVA on applicable items)
+  - Determine payment method from PayPal transaction
+
+  **Step 2: Provider API Call**
+  - Format data according to provider's API specifications
+  - Include authentication credentials
+  - Send POST request to create invoice
+  - Receive invoice ID and CUFE from provider
+
+  **Step 3: DIAN Transmission**
+  - Provider validates invoice data
+  - Generates CUFE and QR code
+  - Transmits to DIAN for approval
+  - Receives approval confirmation
+
+  **Step 4: Storage and Delivery**
+  - PDF invoice downloaded from provider
+  - Stored in `uploads/facturas/` directory
+  - Linked to order in database
+  - Email sent to customer with PDF attachment
+  - Invoice available in customer's order history
+</Accordion>
+
+### Manual Invoice Generation
+
+Administrators can also generate invoices manually:
+
+1. Navigate to **Admin → Pedidos** (Orders)
+2. Select an order in "Pagado" status or later
+3. Click **"Generar Factura"** button
+4. System creates invoice via configured provider
+5. Invoice is immediately available for download
+
+<Tip>
+  Use manual generation if automatic invoicing fails or if you need to regenerate an invoice with corrections.
+</Tip>
+
+## Simulation Mode
+
+For testing and development:
+
+<Accordion title="Testing Without API Calls">
+  **Enable Simulation Mode:**
+  In `config/factura_config.php`:
+  ```php
+  'simulate' => true
+  ```
+
+  **What Happens:**
+  - No actual API calls to provider
+  - Simulated CUFE generated (fake but valid format)
+  - PDF created with "SIMULADO" watermark
+  - No transmission to DIAN
+  - Useful for development and testing
+
+  **Disable for Production:**
+  ```php
+  'simulate' => false
+  ```
+
+  Always disable simulation mode before going live!
+</Accordion>
+
+<Note>
+  Simulated invoices are NOT legally valid and should never be used for real transactions.
+</Note>
+
+## Invoice PDF Format
+
+### PDF Structure
+
+Generated invoices include:
+
+**Header:**
+- Company logo
+- Company name and NIT
+- "FACTURA ELECTRÓNICA DE VENTA" title
+- Invoice number and date
+
+**Supplier Details:**
+- Business address
+- Phone and email
+- Tax regime information
+
+**Customer Details:**
+- Customer name
+- ID or NIT
+- Email
+- Billing address
+
+**Invoice Table:**
+- Item descriptions
+- Quantities
+- Unit prices
+- IVA rates
+- Line totals
+
+**Totals Section:**
+- Subtotal (before tax)
+- IVA amount
+- Total to pay
+
+**Footer:**
+- CUFE code (large font)
+- QR code for validation
+- DIAN resolution number
+- Digital signature information
+- Legal disclaimer text
+
+### Downloading Invoices
+
+Customers can download invoices:
+
+**From Order History Page:**
+1. Log in to account
+2. Go to **"Mis Pedidos"**
+3. Find the paid order
+4. Click **"Descargar factura"** button
+5. PDF opens in new tab or downloads
+
+**From Email:**
+- Invoice attached to order confirmation email
+- Click attachment to view/download
+
+<Tip>
+  Customers should save invoices for warranty claims and tax purposes. They can be downloaded multiple times.
+</Tip>
+
+## Tax Calculation
+
+### IVA (Value Added Tax)
+
+Standard IVA rate in Colombia: **19%**
+
+<Accordion title="IVA Calculation Details">
+  **Applicable Products:**
+  - Most computer hardware: 19% IVA
+  - Some peripherals: 19% IVA
+  - Software: May be exempt (0% IVA)
+  - Services: Varies by type
+
+  **Calculation:**
+  ```
+  Item Subtotal = Quantity × Unit Price
+  IVA Amount = Item Subtotal × 0.19
+  Item Total = Item Subtotal + IVA Amount
+  ```
+
+  **Invoice Totals:**
+  ```
+  Subtotal = Sum of all item subtotals
+  Total IVA = Sum of all IVA amounts
+  Grand Total = Subtotal + Total IVA
+  ```
+
+  **Example:**
+  - Product: Processor
+  - Quantity: 2
+  - Unit Price: $500,000
+  - Subtotal: $1,000,000
+  - IVA (19%): $190,000
+  - Total: $1,190,000
+</Accordion>
+
+### Tax-Exempt Items
+
+Some products may be exempt:
+
+- Educational books and materials
+- Certain medical devices
+- Agricultural products
+- Items with special IVA rates (5% or 0%)
+
+<Note>
+  Configure product-specific IVA rates in the product catalog. Default is 19% for all items.
+</Note>
+
+## Credit Notes
+
+For returns and adjustments:
+
+### When to Issue Credit Notes
+
+- Customer returns products
+- Pricing error in original invoice
+- Product defects or damages
+- Order cancellation after invoicing
+
+### Credit Note Process
+
+1. **Identify original invoice** that needs correction
+2. **Create credit note** referencing original CUFE
+3. **Specify reason** for credit
+4. **Generate through provider** API
+5. **Transmit to DIAN** for approval
+6. **Deliver to customer** via email
+
+<Accordion title="Credit Note Requirements">
+  **Must Include:**
+  - Reference to original invoice number
+  - Original invoice CUFE
+  - Reason for credit
+  - Items being credited
+  - Credit amount
+  - New CUFE for credit note
+
+  **DIAN Rules:**
+  - Must be issued within legal timeframe
+  - Cannot exceed original invoice amount
+  - Requires proper justification
+  - Affects both parties' tax obligations
+</Accordion>
+
+## Invoice Storage and Retrieval
+
+### Storage System
+
+Invoices are stored in multiple locations:
+
+**Local Server:**
+- Directory: `uploads/facturas/`
+- Filename: `factura_[order_id]_[timestamp].pdf`
+- Database reference in `pedidos` table
+
+**Provider Platform:**
+- Available on Alegra/Siigo dashboard
+- Can be re-downloaded if local copy lost
+- Includes full invoice history
+
+**DIAN Registry:**
+- All invoices registered with DIAN
+- Searchable by CUFE
+- Permanent legal record
+
+### Retention Period
+
+<Note>
+  Colombian law requires businesses to retain electronic invoices for **5 years**. Ensure regular backups of invoice files.
+</Note>
+
+## Administration Interface
+
+### Viewing Invoices
+
+Administrators can:
+
+**View All Invoices:**
+- Navigate to **Admin → Facturas**
+- See list of all generated invoices
+- Filter by date, customer, status
+- Download individual or batch PDFs
+
+**Invoice Details:**
+- Order information
+- Customer data
+- Invoice status (sent, viewed, paid)
+- CUFE and DIAN approval status
+- Generation timestamp
+
+### Troubleshooting Failed Invoices
+
+If invoice generation fails:
+
+1. **Check error log** for API response
+2. **Verify credentials** in configuration
+3. **Validate order data** completeness
+4. **Retry generation** after fixing issues
+5. **Contact provider** support if needed
+
+<Accordion title="Common Invoice Generation Errors">
+  **Invalid Customer Data:**
+  - Missing email address
+  - Invalid ID format
+  - Incomplete billing address
+  **Solution:** Update customer information and retry
+
+  **Authentication Failure:**
+  - Expired API token
+  - Incorrect credentials
+  - Account suspended
+  **Solution:** Verify credentials in config file
+
+  **DIAN Rejection:**
+  - Invalid NIT format
+  - Duplicate invoice number
+  - Tax calculation error
+  **Solution:** Check DIAN error details and correct
+
+  **Provider API Error:**
+  - Service temporarily down
+  - Rate limit exceeded
+  - Network connectivity issue
+  **Solution:** Wait and retry, or contact provider
+</Accordion>
+
+## Configuration
+
+### Setup Checklist
+
+<CardGroup cols={2}>
+  <Card title="1. Choose Provider" icon="1">
+    Select Alegra or Siigo based on your needs
+  </Card>
+  <Card title="2. Get Credentials" icon="2">
+    Sign up with provider and obtain API credentials
+  </Card>
+  <Card title="3. Configure System" icon="3">
+    Update config/factura_config.php with credentials
+  </Card>
+  <Card title="4. Test Integration" icon="4">
+    Use simulation mode to test before going live
+  </Card>
+</CardGroup>
+
+### Configuration File
+
+Edit `config/factura_config.php`:
+
+```php
+return [
+    // Choose provider
+    'provider' => 'alegra', // or 'siigo'
+    
+    // Enable/disable simulation
+    'simulate' => false, // true for testing
+    
+    // Alegra settings
+    'alegra' => [
+        'token' => getenv('ALEGRA_TOKEN'),
+        'email' => getenv('ALEGRA_EMAIL')
+    ],
+    
+    // Siigo settings
+    'siigo' => [
+        'client_id' => getenv('SIIGO_CLIENT_ID'),
+        'client_secret' => getenv('SIIGO_CLIENT_SECRET'),
+        'username' => getenv('SIIGO_USERNAME'),
+        'password' => getenv('SIIGO_PASSWORD')
+    ]
+];
+```
+
+<Tip>
+  Use environment variables for sensitive credentials instead of hardcoding them in the config file.
+</Tip>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Monitor Daily" icon="chart-line">
+    Check that all paid orders have invoices generated
+  </Card>
+  <Card title="Backup Regularly" icon="cloud-arrow-up">
+    Back up invoice PDFs and database records
+  </Card>
+  <Card title="Test Changes" icon="flask">
+    Use simulation mode when testing new features
+  </Card>
+  <Card title="Keep Updated" icon="arrows-rotate">
+    Stay current with DIAN regulation changes
+  </Card>
+</CardGroup>
+
+### Compliance Recommendations
+
+- Generate invoices within 24 hours of payment
+- Verify CUFE codes periodically
+- Maintain complete audit trail
+- Issue credit notes promptly for returns
+- Keep provider credentials secure
+- Monitor DIAN compliance status
+
+## Customer Experience
+
+From the customer's perspective:
+
+1. **Place order** and complete payment
+2. **Receive confirmation** email immediately
+3. **Invoice attached** to email automatically
+4. **Can download** from order history page
+5. **Verify authenticity** using CUFE on DIAN website
+
+<Note>
+  Customers appreciate receiving invoices automatically. It builds trust and provides necessary documentation for personal or business records.
+</Note>
+
+## Legal Considerations
+
+### DIAN Compliance
+
+- All invoices must be transmitted to DIAN
+- Electronic invoices have same legal validity as paper
+- Must use authorized provider (Alegra, Siigo, etc.)
+- Cannot use custom or home-built invoicing for DIAN
+- Penalties for non-compliance can be severe
+
+### Resolution Number
+
+Your business must have:
+
+- DIAN authorization to issue electronic invoices
+- Assigned resolution number
+- Valid numbering range
+- Authorized provider relationship
+
+<Tip>
+  Consult with your accountant or tax advisor to ensure proper DIAN registration before enabling electronic invoicing.
+</Tip>
+
+## Support Resources
+
+- **DIAN Website:** https://www.dian.gov.co
+- **Alegra Support:** https://ayuda.alegra.com
+- **Siigo Support:** https://ayuda.siigo.com
+- **CompuTécnicos Docs:** See accounting features documentation

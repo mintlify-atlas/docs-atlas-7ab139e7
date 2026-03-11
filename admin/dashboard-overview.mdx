@@ -1,0 +1,170 @@
+---
+title: Dashboard Overview
+description: Get a comprehensive view of your store's performance with real-time metrics and quick access to key management areas
+---
+
+The admin dashboard is your command center for managing CompuTécnicos. It provides real-time insights into sales, inventory, and operations, helping you make informed decisions quickly.
+
+## What You See on the Dashboard
+
+When you log in to the admin panel, the dashboard displays critical business metrics and provides shortcuts to all management areas.
+
+### Key Performance Indicators (KPIs)
+
+The dashboard features four primary KPI cards that give you an instant snapshot of your store's health:
+
+<CardGroup cols={2}>
+  <Card title="Ventas del Mes" icon="dollar-sign">
+    Total revenue from all paid, shipped, and delivered orders in the current month. This represents your actual invoiced sales.
+  </Card>
+  
+  <Card title="Pedidos del Mes" icon="clipboard-list">
+    Number of processed orders in the current month. Track your order volume to understand business activity levels.
+  </Card>
+  
+  <Card title="Utilidad Estimada" icon="chart-line">
+    Estimated profit margin calculated at 18% of monthly sales. This provides a quick profitability estimate.
+  </Card>
+  
+  <Card title="Stock Bajo" icon="boxes-stacked">
+    Count of products with 5 units or less in stock. This alert helps prevent stockouts and lost sales.
+    - **Red badge**: Critical - needs immediate attention
+    - **Green indicator**: All products are well-stocked
+  </Card>
+</CardGroup>
+
+## Quick Access Navigation
+
+Below the KPIs, you'll find six shortcut cards for quick navigation to key management areas:
+
+<CardGroup cols={3}>
+  <Card title="Productos" icon="box" href="/admin/products">
+    Manage your product catalog, add new items, and update specifications
+  </Card>
+  
+  <Card title="Pedidos" icon="receipt" href="/admin/orders">
+    Process customer orders, track shipments, and handle fulfillment
+  </Card>
+  
+  <Card title="Inventario" icon="warehouse" href="/admin/inventory">
+    Record stock movements, track entries and exits
+  </Card>
+  
+  <Card title="Usuarios" icon="users" href="/admin/users">
+    Manage customer and staff accounts
+  </Card>
+  
+  <Card title="Proveedores" icon="building" href="/admin/inventory">
+    Maintain your supplier directory and contact information
+  </Card>
+  
+  <Card title="Reportes" icon="file-chart-column" href="/admin/analytics">
+    Generate accounting and legal compliance reports
+  </Card>
+</CardGroup>
+
+## Understanding Your Metrics
+
+### Sales Calculations
+
+The dashboard shows sales data for orders with the following statuses:
+- **Pagado**: Payment confirmed
+- **Enviado**: Order shipped to customer
+- **Entregado**: Order delivered successfully
+
+Orders marked as "pendiente" or "cancelado" are excluded from sales metrics.
+
+### Profit Estimation
+
+The **Utilidad Estimada** uses an 18% profit margin calculation:
+```
+Estimated Profit = Monthly Sales × 0.18
+```
+
+This is a simplified estimate. For detailed profitability analysis, use the [Reporte Contable](/admin/analytics) which factors in actual purchase costs, taxes, and overhead.
+
+### Stock Alerts
+
+Products appear in the low stock list when:
+- Inventory drops to 5 units or fewer
+- Stock reaches zero (critical priority)
+
+<Tip>
+**Best practice**: Review the low stock section daily and restock items before they reach zero to avoid customer disappointment.
+</Tip>
+
+## Low Stock Management
+
+The dashboard displays a dedicated table showing all products with low inventory:
+
+| Column | Description |
+|--------|-------------|
+| **Producto** | Product name |
+| **Stock** | Current quantity (color-coded: red ≤ 0, yellow ≤ 5) |
+| **Categoría** | Product category |
+| **Marca** | Product brand |
+| **Acción** | Edit button to update product or restock |
+
+### Restocking Products
+
+<Steps>
+  <Step title="Click the low stock product">
+    In the "Productos con stock bajo" table, click the **Editar** button next to any product
+  </Step>
+  
+  <Step title="Update inventory">
+    Use the product editor to adjust stock levels, or click **+ Reponer stock** to record an inventory entry
+  </Step>
+  
+  <Step title="Record supplier details">
+    If adding new inventory, include purchase price, supplier, and invoice information for accurate accounting
+  </Step>
+</Steps>
+
+## Accounting Summary
+
+At the bottom of the dashboard, you'll find a monthly accounting summary with three key metrics:
+
+<AccordionGroup>
+  <Accordion title="Compras del Mes">
+    Total value of inventory purchases recorded as entries this month. This includes the cost of products added to stock through supplier purchases.
+  </Accordion>
+  
+  <Accordion title="IVA Pagado">
+    Total value-added tax (IVA) paid on purchases made during the current month. This is tracked separately for tax reporting purposes.
+  </Accordion>
+  
+  <Accordion title="Valor Inventario">
+    Current total inventory value calculated using the average purchase price method. This represents the monetary value of all products currently in stock.
+  </Accordion>
+</AccordionGroup>
+
+### Why These Numbers Matter
+
+- **Cash flow tracking**: Compare monthly purchases vs. sales to understand cash requirements
+- **Tax compliance**: Monitor IVA for quarterly or annual tax filings
+- **Asset management**: Know the value of your inventory for financial statements
+
+<Note>
+For detailed accounting reports with date range filtering and Excel export, visit the [Reporte Contable](/admin/analytics) page.
+</Note>
+
+## What's Not on the Dashboard
+
+The dashboard focuses on high-level metrics. For detailed analysis, navigate to specialized areas:
+
+- **Individual order details** → [Pedidos page](/admin/orders)
+- **Product performance by category** → [Analytics page](/admin/analytics)
+- **Customer purchase history** → [User management](/admin/users)
+- **Detailed inventory movements** → [Inventory tracking](/admin/inventory)
+
+## Dashboard Refresh
+
+The dashboard metrics update in real-time as you perform actions throughout the system:
+- New orders immediately update "Pedidos del Mes"
+- Inventory changes reflect instantly in "Stock Bajo" counts
+- Sales are recalculated when order status changes to paid/shipped/delivered
+
+<Warning>
+Metrics are calculated based on your database state. If you notice discrepancies, check for pending database operations or contact technical support.
+</Warning>

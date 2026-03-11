@@ -1,0 +1,330 @@
+---
+title: Shopping Cart
+description: Manage your product selections, view pricing details, and prepare for checkout with our intelligent shopping cart system
+---
+
+## Overview
+
+The CompuTécnicos shopping cart provides a comprehensive interface for managing your product selections before checkout. It includes smart features like combo discounts, free shipping progress tracking, and intelligent product recommendations.
+
+<Note>
+  You must be logged in to add products to your cart and proceed to checkout.
+</Note>
+
+## Adding Products to Cart
+
+### From Product Catalog
+
+1. Browse the product catalog
+2. Click on a product card to view details
+3. Click **"Agregar al Carrito"** button
+4. Product is added to your cart immediately
+
+### From Product Detail Page
+
+1. View product details
+2. Adjust the **quantity** using the selector
+3. Click **"Agregar al Carrito"**
+4. Or use **"Comprar Ahora"** for direct checkout
+
+<Tip>
+  The "Comprar Ahora" (Buy Now) button takes you directly to checkout with just that product, bypassing the cart page.
+</Tip>
+
+## Cart Features
+
+<CardGroup cols={2}>
+  <Card title="Quantity Management" icon="arrow-up-1-9">
+    Adjust quantities with +/- buttons or direct input
+  </Card>
+  <Card title="Combo Discounts" icon="percent">
+    Automatic 10% discount on compatible product combinations
+  </Card>
+  <Card title="Free Shipping Progress" icon="truck-fast">
+    Visual progress bar showing how close you are to free shipping
+  </Card>
+  <Card title="Smart Recommendations" icon="sparkles">
+    Suggested products based on your cart items
+  </Card>
+</CardGroup>
+
+## Cart Interface
+
+### Item Display
+
+Each cart item shows:
+
+- **Product image** with offer badge if applicable
+- **Category** and product name
+- **Brand** information
+- **Stock availability** with quantity remaining
+- **Quantity controls** (+/- buttons and direct input)
+- **Subtotal** for that item
+- **Remove button** to delete the item
+
+### Quantity Controls
+
+Manage product quantities easily:
+
+<Accordion title="Adjusting Quantities">
+  **Increment/Decrement Buttons:**
+  - Click the **"-"** button to decrease quantity
+  - Click the **"+"** button to increase quantity
+  - Cannot go below 1 unit
+  - Cannot exceed available stock
+
+  **Direct Input:**
+  - Click in the quantity field
+  - Type the desired number
+  - System auto-updates when you change the value
+  - Invalid quantities are automatically corrected
+</Accordion>
+
+<Note>
+  If you try to add more units than available stock, the system will limit the quantity and show a warning message.
+</Note>
+
+## Pricing and Discounts
+
+### Subtotal Calculation
+
+The cart calculates:
+- **Subtotal**: Sum of all items (quantity × unit price)
+- **Combo Discount**: Automatic discount for compatible products
+- **Shipping**: $10,000 COP or FREE (over $50,000 COP)
+- **Total**: Final amount to pay
+
+### Combo Discounts
+
+Get **10% off** when combining compatible categories:
+
+| Category Pair | Discount |
+|--------------|----------|
+| CPU + RAM | 10% on both items |
+| CPU + Storage | 10% on both items |
+| GPU + Peripherals | 10% on both items |
+| GPU + Storage | 10% on both items |
+| Storage + RAM | 10% on both items |
+| Storage + Peripherals | 10% on both items |
+
+<Tip>
+  Combo discounts apply to pairs automatically. If you have 2 CPUs and 2 RAM modules, you'll get 2 combo discounts!
+</Tip>
+
+<Accordion title="How Combo Discounts Work">
+  The system:
+  1. Groups items by category (Procesadores, Memorias RAM, etc.)
+  2. Identifies compatible pairs based on predefined rules
+  3. Calculates 10% discount on the sum of each pair
+  4. Applies discounts to the lowest-priced items first
+  5. Shows total discount in the cart summary
+
+  **Example:**
+  - CPU: $500,000 COP
+  - RAM: $200,000 COP
+  - Combo discount: (500,000 + 200,000) × 10% = $70,000 COP saved
+</Accordion>
+
+### Free Shipping
+
+Track your progress toward free shipping:
+
+- **Threshold**: $50,000 COP
+- **Default shipping**: $10,000 COP
+- **Progress bar** shows percentage complete
+- **Remaining amount** displayed when below threshold
+
+<CardGroup cols={2}>
+  <Card title="Below Threshold" icon="truck">
+    Shows "Te faltan $X para envío gratis" with the remaining amount needed
+  </Card>
+  <Card title="Free Shipping Unlocked" icon="check">
+    Shows "¡Ya alcanzaste el envío gratis!" celebration message
+  </Card>
+</CardGroup>
+
+## Cart Summary Sidebar
+
+The right sidebar displays your purchase summary:
+
+### Summary Details
+- **Subtotal** with item count
+- **Shipping cost** (or FREE indicator)
+- **Free shipping progress** bar
+- **Combo discount** (if applicable)
+- **Delivery guarantee** information
+- **Final total** in COP
+
+### Action Buttons
+
+<Accordion title="Available Actions">
+  **Proceder al Pago (Proceed to Payment):**
+  - Takes you to the checkout page
+  - Only visible when logged in
+  - Primary action button
+
+  **Vaciar Carrito (Empty Cart):**
+  - Removes all items from cart
+  - Shows confirmation modal
+  - Cannot be undone
+</Accordion>
+
+## Delivery Guarantee
+
+Every cart includes a delivery guarantee:
+
+<Note>
+  **Entrega garantizada**: If your order is delayed, you receive a $4,000 COP coupon for future purchases.
+</Note>
+
+This ensures customer satisfaction and builds trust in the delivery process.
+
+## Smart Recommendations
+
+The cart shows personalized product suggestions:
+
+### How Recommendations Work
+
+1. **Category-based**: Products from same categories as cart items
+2. **Intelligent filtering**: Excludes items already in cart
+3. **Priority sorting**: Offer items and newest products first
+4. **Limited display**: Shows up to 4 recommendations
+
+### Using Recommendations
+
+- View product image, name, and price
+- Click **"Agregar"** to add to cart
+- Automatically refreshes after adding
+
+<Tip>
+  Recommendations help you complete your PC build or find compatible accessories!
+</Tip>
+
+## Cart Actions
+
+### Removing Items
+
+1. Click the **trash icon** button on any cart item
+2. Confirm deletion in the modal dialog
+3. Item is removed immediately
+4. Cart totals update automatically
+
+### Emptying Cart
+
+1. Click **"Vaciar Carrito"** button in sidebar
+2. Confirm action in modal dialog
+3. All items are removed
+4. Cart becomes empty
+
+<Note>
+  Clearing your cart cannot be undone. Make sure you want to remove all items before confirming.
+</Note>
+
+### Continuing to Checkout
+
+When ready to purchase:
+
+1. Review all items and quantities
+2. Verify the total amount
+3. Click **"Proceder al Pago"**
+4. You'll be taken to the checkout page
+
+## Mobile Experience
+
+The cart is fully responsive:
+
+- **Stacked layout** on mobile devices
+- **Touch-optimized** controls for quantity adjustment
+- **Swipe-friendly** item cards
+- **Mobile-specific** quantity inputs for better usability
+- **Responsive sidebar** moves below items on small screens
+
+## Cart Persistence
+
+Your cart is stored in your session:
+
+- **Persists during browsing** across the site
+- **Survives page refreshes** while logged in
+- **Cleared on logout** for security
+- **Not shared** between devices
+
+<Tip>
+  Log in before adding items to ensure your cart is saved throughout your shopping session.
+</Tip>
+
+## Stock Validation
+
+The cart includes real-time stock checking:
+
+- **Available stock** displayed for each item
+- **Stock warnings** if quantity exceeds availability
+- **Automatic limitation** to available stock
+- **Out of stock** items clearly marked
+
+<Accordion title="Stock Validation Process">
+  When updating quantities:
+  1. System checks current available stock
+  2. Compares with requested quantity
+  3. If exceeding stock, limits to maximum available
+  4. Shows warning toast notification
+  5. Updates cart with corrected quantity
+
+  Example: If you try to add 10 units but only 5 are in stock, the cart will set quantity to 5 and notify you.
+</Accordion>
+
+## Error Handling
+
+### Common Scenarios
+
+| Scenario | System Response |
+|----------|----------------|
+| Not logged in | Redirects to login page |
+| Out of stock | Prevents adding, shows error |
+| Invalid quantity | Auto-corrects and notifies |
+| Empty cart at checkout | Shows empty cart message |
+
+### Toast Notifications
+
+The cart uses toast notifications for user feedback:
+
+- **Success** (green): Product added successfully
+- **Warning** (yellow): Stock limit reached
+- **Error** (red): Operation failed
+
+Toasts appear in the top-right corner and auto-dismiss after 4 seconds.
+
+## Technical Details
+
+### AJAX Updates
+
+Quantity updates use AJAX for seamless experience:
+
+```javascript
+// Updates happen without page reload
+// Server validates and returns new totals
+// Cart refreshes automatically
+```
+
+### Session Storage
+
+Cart data is stored in PHP sessions:
+- Secure server-side storage
+- Not exposed to client manipulation
+- Validated on every operation
+
+## Tips for Best Experience
+
+<CardGroup cols={2}>
+  <Card title="Check Stock First" icon="box">
+    View product stock on detail pages before adding large quantities
+  </Card>
+  <Card title="Use Combos" icon="percentage">
+    Build complete PC setups to maximize combo discounts
+  </Card>
+  <Card title="Track Free Shipping" icon="truck">
+    Add items to reach the $50,000 threshold for free delivery
+  </Card>
+  <Card title="Review Before Checkout" icon="eye">
+    Double-check quantities and total before proceeding to payment
+  </Card>
+</CardGroup>

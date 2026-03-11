@@ -1,0 +1,234 @@
+---
+title: Inventory Management
+description: Track stock movements, manage inventory entries and exits, and maintain audit trails
+---
+
+The Inventory panel provides complete tracking of all product stock movements with full documentation and audit trails.
+
+## Accessing Inventory
+
+Navigate to **Admin Panel** > **Inventory** to view all inventory movements.
+
+The inventory table displays:
+- Product name
+- Movement type (Entrada/Salida/Ajuste)
+- Quantity moved
+- Supplier information
+- Invoice details and pricing
+- Movement reason
+- Admin user who made the change
+- Date and time
+- Supporting documentation
+
+## Movement Types
+
+Inventory movements are categorized into three types:
+
+### 🟢 Entrada (Entry)
+Stock added to inventory:
+- Purchases from suppliers
+- Returns from customers
+- Corrections for undercounting
+
+### 🔴 Salida (Exit)
+Stock removed from inventory:
+- Sales and fulfilled orders
+- Damaged or defective items
+- Corrections for overcounting
+
+### 🟡 Ajuste (Adjustment)
+Stock corrections:
+- Physical inventory reconciliation
+- System corrections
+- Transfer between locations
+
+## Creating a New Movement
+
+<Steps>
+  <Step title="Click New Movement">
+    Click the **+ Nuevo movimiento** (New movement) button in the top right.
+  </Step>
+
+  <Step title="Select movement type">
+    Choose **Tipo** (Type):
+    - **Entrada** (Entry)
+    - **Salida** (Exit)
+    - **Ajuste** (Adjustment)
+  </Step>
+
+  <Step title="Select product">
+    Choose the product from the **Producto** dropdown.
+  </Step>
+
+  <Step title="Enter quantity">
+    Specify the **Cantidad** (Quantity) being moved.
+  </Step>
+
+  <Step title="Add financial details (for entries)">
+    For supplier purchases, enter:
+    - **Proveedor** (Supplier): Select from dropdown
+    - **Número de Factura** (Invoice Number): Supplier invoice reference
+    - **Precio Unitario** (Unit Price): Cost per item
+    - **IVA**: Tax amount
+    - **Retención** (Withholding): Tax withholding amount
+  </Step>
+
+  <Step title="Describe the reason">
+    Enter a clear **Motivo** (Reason) explaining why this movement is being made.
+  </Step>
+
+  <Step title="Upload documentation (optional)">
+    Attach supporting documents like:
+    - Supplier invoices
+    - Delivery receipts
+    - Return authorizations
+    Click **Soporte Documental** to upload a PDF, image, or document.
+  </Step>
+
+  <Step title="Save the movement">
+    Click **Guardar** (Save) to record the movement and update stock levels.
+  </Step>
+</Steps>
+
+<Note>
+  The movement is instantly reflected in the product's stock level. The admin user who creates the movement is automatically recorded for audit purposes.
+</Note>
+
+## Inventory Fields Explained
+
+### Product Information
+- **Producto**: The product affected by the movement
+- **Cant.** (Quantity): Number of units moved
+
+### Supplier & Purchase Details
+- **Proveedor**: Supplier name (for purchases)
+- **Factura**: Supplier invoice number
+- **Precio U.**: Unit cost from supplier
+- **IVA**: Value-added tax amount
+- **Ret.**: Tax retention/withholding amount
+
+### Tracking Information
+- **Motivo**: Explanation for the movement (e.g., "Compra proveedor X", "Venta/Pedido #123")
+- **Usuario**: Admin user who created the movement
+- **Fecha**: Date and time of the movement
+- **Sop.**: Link to supporting documentation (if uploaded)
+
+## Automatic Movements
+
+Some inventory movements are created automatically by the system:
+
+### From Order Processing
+When order status changes (see [Order Management](/admin/orders)):
+- **Status → Pagado/Entregado**: Creates a "Salida" movement with reason "Venta/Pedido #[id]"
+- **Cancelling Paid Orders**: Creates an "Entrada" movement with reason "Cancelación Pedido #[id]"
+
+<Tip>
+  Automatic movements ensure your inventory always reflects actual stock based on orders. You don't need to manually adjust stock after processing orders.
+</Tip>
+
+## Viewing Documentation
+
+If a movement has supporting documentation:
+
+1. Look for the blue **Ver** (View) badge in the **Sop.** column
+2. Click the badge to open the document in a new tab
+3. Documents can be invoices, receipts, photos, or any relevant file
+
+<Note>
+  If no documentation is attached, the column shows **—** (dash).
+</Note>
+
+## Deleting Movements
+
+<Steps>
+  <Step title="Click Delete">
+    Click the **Eliminar** (Delete) button next to the movement.
+  </Step>
+
+  <Step title="Confirm deletion">
+    A confirmation modal will appear showing the movement number.
+  </Step>
+
+  <Step title="Complete deletion">
+    Click **Sí, eliminar** (Yes, delete) to remove the movement record.
+  </Step>
+</Steps>
+
+<Warning>
+  **Deleting inventory movements:**
+  - Removes the movement from the audit log
+  - Does NOT automatically restore previous stock levels
+  - Should only be used to correct data entry errors
+  - Creates gaps in the audit trail
+  
+  Consider creating a correcting adjustment movement instead of deleting.
+</Warning>
+
+## Cleaning Support Files
+
+Click the **🗑️ Limpiar Soportes** (Clean Support Files) button to:
+- Review orphaned or unused support documents
+- Free up server storage space
+- Clean up files from deleted movements
+
+<Tip>
+  Run this cleanup periodically (monthly or quarterly) to maintain optimal system performance.
+</Tip>
+
+## Best Practices
+
+<Tip>
+  **Document everything:**
+  - Always upload supplier invoices for purchases
+  - Include photos for damaged goods
+  - Attach return authorizations for customer returns
+  - Clear documentation helps with accounting and audits
+</Tip>
+
+<Tip>
+  **Write clear reasons:**
+  - Be specific: "Compra Proveedor TechDistribuciones - Factura F-12345"
+  - Include reference numbers when applicable
+  - Mention the order number for sales: "Venta/Pedido #789"
+  - Clear reasons make auditing and troubleshooting easier
+</Tip>
+
+<Tip>
+  **Regular reconciliation:**
+  - Perform physical inventory counts periodically
+  - Use "Ajuste" movements to correct discrepancies
+  - Document why discrepancies occurred
+  - Schedule regular stock audits (monthly, quarterly)
+</Tip>
+
+<Tip>
+  **Supplier management:**
+  - Always select the correct supplier for purchases
+  - Record accurate unit prices for cost tracking
+  - Include IVA and retention amounts for tax compliance
+  - This data feeds into financial reports and cost analysis
+</Tip>
+
+## Inventory Reports
+
+The inventory panel shows real-time data:
+- **Total movements**: Displayed in the badge at the top
+- **Scrollable table**: All movements visible in one view
+- **Sortable columns**: Click headers to sort (if enabled)
+
+<Note>
+  For advanced reporting, you can export inventory data or integrate with accounting systems. Contact your system administrator for export options.
+</Note>
+
+## Understanding Stock Levels
+
+Current stock levels are calculated as:
+```
+Current Stock = Initial Stock + All Entradas - All Salidas ± Ajustes
+```
+
+Every movement contributes to the final stock count. You can trace any product's stock history by filtering the inventory table.
+
+<Tip>
+  To see all movements for a specific product, use the search/filter feature (if available) or sort by product name to group movements together.
+</Tip>

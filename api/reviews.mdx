@@ -1,0 +1,533 @@
+---
+title: 'Reviews API'
+description: 'Create and retrieve product reviews with image uploads and ratings'
+---
+
+## Overview
+
+The Reviews API enables customers to leave ratings, comments, and photo reviews for products they have purchased. The API enforces purchase verification, preventing fake reviews, and supports up to 3 images per review.
+
+<Note>
+Only users who have purchased a product (with order status: `pagado`, `preparacion`, `enviado`, or `entregado`) can leave reviews.
+</Note>
+
+---
+
+## Get Product Reviews
+
+<CodeGroup>
+```bash Request
+GET /api/resenas.php?id_producto=42
+```
+
+```json Response
+{
+  "ok": true,
+  "resenas": [
+    {
+      "id": 15,
+      "id_producto": 42,
+      "id_usuario": 8,
+      "calificacion": 5,
+      "titulo": "Excelente laptop",
+      "comentario": "Muy buena calidad, llegó rápido y funciona perfectamente. La recomiendo.",
+      "fecha": "2026-03-10 14:23:00",
+      "verificado": 1,
+      "usuario": "María García",
+      "usuario_foto": "uploads/avatars/user8.jpg",
+      "imagenes": [
+        {
+          "id": 23,
+          "url_imagen": "uploads/resenas/resena_15_1_a3b4c5d6.jpg"
+        }
+      ]
+    }
+  ],
+  "stats": {
+    "total": 24,
+    "promedio": 4.3,
+    "distribucion": {
+      "1": 1,
+      "2": 2,
+      "3": 3,
+      "4": 8,
+      "5": 10
+    }
+  },
+  "puede_resenar": true,
+  "ya_reseno": false
+}
+```
+</CodeGroup>
+
+Retrieves all reviews for a specific product, including user information, ratings, comments, and uploaded images. Also provides aggregate statistics and permission flags.
+
+### Query Parameters
+
+<ParamField query="id_producto" type="integer" required>
+  The product ID to retrieve reviews for
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="ok" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="resenas" type="array">
+  Array of review objects for the product
+</ResponseField>
+
+<ResponseField name="resenas[].id" type="integer">
+  Unique review ID
+</ResponseField>
+
+<ResponseField name="resenas[].calificacion" type="integer">
+  Star rating from 1 to 5
+</ResponseField>
+
+<ResponseField name="resenas[].titulo" type="string">
+  Optional review title (max 150 characters)
+</ResponseField>
+
+<ResponseField name="resenas[].comentario" type="string">
+  Review comment text
+</ResponseField>
+
+<ResponseField name="resenas[].fecha" type="datetime">
+  Review creation timestamp
+</ResponseField>
+
+<ResponseField name="resenas[].verificado" type="boolean">
+  Whether the review is from a verified purchaser (always 1 for this API)
+</ResponseField>
+
+<ResponseField name="resenas[].usuario" type="string">
+  Display name of the reviewer
+</ResponseField>
+
+<ResponseField name="resenas[].usuario_foto" type="string">
+  URL to the reviewer's profile photo
+</ResponseField>
+
+<ResponseField name="resenas[].imagenes" type="array">
+  Array of uploaded review images (up to 3 per review)
+</ResponseField>
+
+<ResponseField name="stats" type="object">
+  Aggregate review statistics for the product
+</ResponseField>
+
+<ResponseField name="stats.total" type="integer">
+  Total number of reviews
+</ResponseField>
+
+<ResponseField name="stats.promedio" type="float">
+  Average rating (1-5, rounded to 1 decimal place)
+</ResponseField>
+
+<ResponseField name="stats.distribucion" type="object">
+  Count of reviews for each star rating (1-5)
+</ResponseField>
+
+<ResponseField name="puede_resenar" type="boolean">
+  Whether the current user can leave a review (true if they purchased but haven't reviewed)
+</ResponseField>
+
+<ResponseField name="ya_reseno" type="boolean">
+  Whether the current user has already reviewed this product
+</ResponseField>
+
+### Implementation Example
+
+```javascript
+// Fetch product reviews
+async function loadReviews(productId) {
+    const response = await fetch(`/api/resenas.php?id_producto=${productId}`);
+    const data = await response.json();
+    
+    if (data.ok) {
+        displayReviews(data.resenas);
+        displayStats(data.stats);
+        
+        // Show review form if user can review
+        if (data.puede_resenar && !data.ya_reseno) {
+            document.getElementById('review-form').style.display = 'block';
+        }
+    }
+}
+```
+
+---
+
+## Create Review
+
+<CodeGroup>
+```bash Request
+POST /api/resenas.php
+Content-Type: multipart/form-data
+
+id_producto: 42
+calificacion: 5
+titulo: Excelente laptop
+comentario: Muy buena calidad, llegó rápido y funciona perfectamente...
+imagenes[]: [file1.jpg]
+imagenes[]: [file2.jpg]
+```
+
+```json Response
+{
+  "ok": true,
+  "msg": "¡Gracias por tu reseña!",
+  "resena_id": 15,
+  "imagenes": [
+    "uploads/resenas/resena_15_1_a3b4c5d6.jpg",
+    "uploads/resenas/resena_15_2_b7c8d9e0.jpg"
+  ]
+}
+```
+</CodeGroup>
+
+Creates a new review for a product. The user must be authenticated and must have purchased the product. Supports optional image uploads (up to 3 images, max 5MB each).
+
+### Authentication
+
+<Warning>
+Requires active user session. Returns `401 Unauthorized` if not logged in.
+</Warning>
+
+```php
+// Session must contain authenticated user
+if (!isset($_SESSION['usuario'])) {
+    http_response_code(401);
+    echo json_encode(['ok' => false, 'msg' => 'Debes iniciar sesión...']);
+    exit;
+}
+```
+
+### Request Parameters
+
+<ParamField body="id_producto" type="integer" required>
+  The product ID to review
+</ParamField>
+
+<ParamField body="calificacion" type="integer" required>
+  Star rating from 1 to 5
+</ParamField>
+
+<ParamField body="comentario" type="string" required>
+  Review comment (minimum 10 characters, maximum 2000 characters)
+</ParamField>
+
+<ParamField body="titulo" type="string">
+  Optional review title (maximum 150 characters)
+</ParamField>
+
+<ParamField body="imagenes[]" type="file[]">
+  Optional array of image files (up to 3 images). Supported formats: JPEG, PNG, WebP, GIF. Maximum size: 5MB per image.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="ok" type="boolean">
+  Indicates if the review was created successfully
+</ResponseField>
+
+<ResponseField name="msg" type="string">
+  Success or error message
+</ResponseField>
+
+<ResponseField name="resena_id" type="integer">
+  The ID of the newly created review
+</ResponseField>
+
+<ResponseField name="imagenes" type="array">
+  Array of uploaded image URLs
+</ResponseField>
+
+### Validation Rules
+
+The API enforces the following validation rules:
+
+```php
+// Rating must be 1-5
+if ($calificacion < 1 || $calificacion > 5) {
+    return error('La calificación debe ser entre 1 y 5 estrellas.');
+}
+
+// Comment minimum length
+if (empty($comentario) || mb_strlen($comentario) < 10) {
+    return error('El comentario debe tener al menos 10 caracteres.');
+}
+
+// Comment maximum length
+if (mb_strlen($comentario) > 2000) {
+    return error('El comentario no puede exceder 2000 caracteres.');
+}
+
+// Title maximum length
+if (mb_strlen($titulo) > 150) {
+    return error('El título no puede exceder 150 caracteres.');
+}
+```
+
+### Purchase Verification
+
+Users can only review products they have purchased:
+
+```php
+// Check if user has purchased the product
+$chkCompra = $pdo->prepare("
+    SELECT p.id FROM pedidos p
+    INNER JOIN detalle_pedido dp ON dp.id_pedido = p.id
+    WHERE p.id_usuario = ? AND dp.id_producto = ?
+      AND p.estado IN ('pagado','preparacion','enviado','entregado')
+    LIMIT 1
+");
+```
+
+<Info>
+The API prevents duplicate reviews - each user can only review a product once.
+</Info>
+
+### Image Upload
+
+Images are processed with these constraints:
+
+- **Maximum files**: 3 images per review
+- **Allowed types**: JPEG, PNG, WebP, GIF
+- **Maximum size**: 5MB per image
+- **Naming convention**: `resena_{id}_{index}_{random}.{ext}`
+- **Storage location**: `uploads/resenas/`
+
+```php
+// Image validation
+$allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+$maxSize = 5 * 1024 * 1024; // 5MB
+
+for ($i = 0; $i < min(count($files['name']), 3); $i++) {
+    // Validate MIME type
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime = $finfo->file($files['tmp_name'][$i]);
+    if (!in_array($mime, $allowedTypes)) continue;
+    
+    // Validate size
+    if ($files['size'][$i] > $maxSize) continue;
+    
+    // Generate secure filename
+    $filename = 'resena_' . $resenaId . '_' . ($i + 1) . '_' 
+                . bin2hex(random_bytes(4)) . '.' . $ext;
+}
+```
+
+### Error Responses
+
+<ResponseField name="ok" type="boolean">
+  `false` when the review creation fails
+</ResponseField>
+
+<ResponseField name="msg" type="string">
+  Error message explaining why the review failed
+</ResponseField>
+
+**Common Errors:**
+- `Debes iniciar sesión para dejar una reseña.` (401)
+- `Producto inválido.`
+- `La calificación debe ser entre 1 y 5 estrellas.`
+- `El comentario debe tener al menos 10 caracteres.`
+- `Ya dejaste una reseña para este producto.`
+- `Solo puedes dejar reseña de productos que hayas comprado.`
+
+### Complete Implementation Example
+
+```html
+<form id="review-form" enctype="multipart/form-data">
+    <input type="hidden" name="id_producto" value="42">
+    
+    <label>Calificación:</label>
+    <select name="calificacion" required>
+        <option value="5">5 estrellas</option>
+        <option value="4">4 estrellas</option>
+        <option value="3">3 estrellas</option>
+        <option value="2">2 estrellas</option>
+        <option value="1">1 estrella</option>
+    </select>
+    
+    <label>Título:</label>
+    <input type="text" name="titulo" maxlength="150" placeholder="Opcional">
+    
+    <label>Comentario:</label>
+    <textarea name="comentario" required minlength="10" maxlength="2000"
+              placeholder="Cuéntanos tu experiencia (mínimo 10 caracteres)"></textarea>
+    
+    <label>Imágenes (opcional, máximo 3):</label>
+    <input type="file" name="imagenes[]" accept="image/*" multiple>
+    
+    <button type="submit">Publicar Reseña</button>
+</form>
+
+<script>
+document.getElementById('review-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    
+    try {
+        const response = await fetch('/api/resenas.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.ok) {
+            alert(result.msg);
+            location.reload(); // Refresh to show new review
+        } else {
+            alert('Error: ' + result.msg);
+        }
+    } catch (error) {
+        alert('Error al enviar la reseña. Intenta de nuevo.');
+    }
+});
+</script>
+```
+
+---
+
+## Get Pending Reviews
+
+<CodeGroup>
+```bash Request
+GET /api/pendientes_resena.php
+```
+
+```json Response
+{
+  "ok": true,
+  "pendientes": [
+    {
+      "id": 42,
+      "nombre": "Laptop HP Pavilion 15",
+      "imagen": "uploads/productos/laptop-hp.jpg",
+      "precio": "2499000",
+      "fecha_entrega": "2026-03-05 16:30:00"
+    },
+    {
+      "id": 37,
+      "nombre": "Mouse Logitech MX Master 3",
+      "imagen": "uploads/productos/mouse-logitech.jpg",
+      "precio": "349000",
+      "fecha_entrega": "2026-03-01 10:15:00"
+    }
+  ]
+}
+```
+</CodeGroup>
+
+Retrieves products that the current user has received (`estado = 'entregado'`) but hasn't reviewed yet. Useful for prompting customers to leave feedback.
+
+### Authentication
+
+<Info>
+Returns empty array if user is not logged in (not an error condition).
+</Info>
+
+### Response Fields
+
+<ResponseField name="ok" type="boolean">
+  Always `true` (returns empty array on error instead of failing)
+</ResponseField>
+
+<ResponseField name="pendientes" type="array">
+  Array of products awaiting review (maximum 5 most recent)
+</ResponseField>
+
+<ResponseField name="pendientes[].id" type="integer">
+  Product ID
+</ResponseField>
+
+<ResponseField name="pendientes[].nombre" type="string">
+  Product name
+</ResponseField>
+
+<ResponseField name="pendientes[].imagen" type="string">
+  Product image URL
+</ResponseField>
+
+<ResponseField name="pendientes[].precio" type="string">
+  Product price in COP
+</ResponseField>
+
+<ResponseField name="pendientes[].fecha_entrega" type="datetime">
+  Date when the order was delivered
+</ResponseField>
+
+### Implementation Example
+
+```javascript
+// Display pending reviews widget
+async function loadPendingReviews() {
+    const response = await fetch('/api/pendientes_resena.php');
+    const data = await response.json();
+    
+    if (data.ok && data.pendientes.length > 0) {
+        const widget = document.getElementById('pending-reviews-widget');
+        widget.innerHTML = '<h3>Productos pendientes de reseñar</h3>';
+        
+        data.pendientes.forEach(product => {
+            widget.innerHTML += `
+                <div class="pending-review-item">
+                    <img src="${product.imagen}" alt="${product.nombre}">
+                    <h4>${product.nombre}</h4>
+                    <p>Entregado: ${product.fecha_entrega}</p>
+                    <a href="/producto.php?id=${product.id}#reviews">
+                        Dejar reseña
+                    </a>
+                </div>
+            `;
+        });
+        
+        widget.style.display = 'block';
+    }
+}
+```
+
+---
+
+## Database Schema
+
+### resenas (Reviews)
+```sql
+CREATE TABLE resenas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_producto INT NOT NULL,
+    id_usuario INT NOT NULL,
+    calificacion TINYINT NOT NULL DEFAULT 5,
+    titulo VARCHAR(150) NULL,
+    comentario TEXT NULL,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+    verificado TINYINT(1) DEFAULT 1,
+    FOREIGN KEY (id_producto) REFERENCES productos(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE,
+    UNIQUE KEY uniq_resena_usuario_producto (id_usuario, id_producto),
+    INDEX idx_producto (id_producto),
+    INDEX idx_fecha (fecha)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+### resenas_imagenes (Review Images)
+```sql
+CREATE TABLE resenas_imagenes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_resena INT NOT NULL,
+    url_imagen VARCHAR(500) NOT NULL,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_resena) REFERENCES resenas(id) ON DELETE CASCADE,
+    INDEX idx_resena (id_resena)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+<Note>
+Both tables are automatically created by the API if they don't exist. The schema uses `utf8mb4` charset for full emoji support.
+</Note>

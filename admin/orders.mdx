@@ -1,0 +1,238 @@
+---
+title: Order Management
+description: How to process orders, update order status, and manage customer purchases
+---
+
+Manage customer orders, update order status, process payments, and track deliveries through the Orders panel.
+
+## Accessing Orders
+
+Navigate to **Admin Panel** > **Orders** to view all orders in the system.
+
+Each order displays:
+- Order number and date
+- Customer name and email
+- Delivery address
+- Order status badge
+- Total amount in COP
+- Shipping tracking number (if available)
+
+## Order Status Workflow
+
+Orders follow a defined workflow with these states:
+
+1. **Pendiente** (Pending): Order placed, awaiting payment confirmation
+2. **Pagado** (Paid): Payment received and confirmed
+3. **En preparación** (In Preparation): Order being prepared for shipment
+4. **Enviado** (Shipped): Order dispatched to customer
+5. **Entregado** (Delivered): Order successfully delivered
+6. **Cancelado** (Cancelled): Order cancelled at any stage
+
+<Note>
+  Order status can only transition in specific sequences. For example, you cannot change a "Pending" order directly to "Shipped" - it must go through "Paid" and "In Preparation" first.
+</Note>
+
+## Filtering Orders
+
+Use the filter buttons at the top to view orders by status:
+
+- **Todos** (All): View all orders
+- **Pendientes** (Pending): Orders awaiting payment
+- **Pagados** (Paid): Confirmed payments
+- **En preparación**: Orders being processed
+- **Enviados** (Shipped): Orders in transit
+- **Entregados** (Delivered): Completed orders
+- **Cancelados** (Cancelled): Cancelled orders
+
+## Updating Order Status
+
+<Steps>
+  <Step title="Locate the order">
+    Find the order using filters or scroll through the order list.
+  </Step>
+
+  <Step title="Change status">
+    In the order card, locate the **Estado** (Status) dropdown.
+  </Step>
+
+  <Step title="Select new status">
+    Choose the new status from the dropdown. Only valid transitions are allowed.
+  </Step>
+
+  <Step title="Update">
+    Click **Actualizar** (Update) to apply the status change.
+  </Step>
+</Steps>
+
+<Warning>
+  **Invalid transitions are blocked:**
+  - You cannot change from "Delivered" or "Cancelled" to other states
+  - Status must follow the logical workflow sequence
+  - An error message will appear if you attempt an invalid transition
+</Warning>
+
+## Automatic Inventory Adjustments
+
+When you change order status, inventory is automatically updated:
+
+### Stock Deduction
+- When status changes to **Pagado** (Paid) or **Entregado** (Delivered)
+- Stock is decreased by the order quantities
+- Movement is recorded as "Venta/Pedido #[order_id]"
+
+### Stock Restoration
+- When a previously paid/delivered order is changed to **Cancelado** (Cancelled)
+- Stock is increased by the original order quantities
+- Movement is recorded as "Cancelación Pedido #[order_id]"
+
+<Tip>
+  All inventory movements are tracked in the [Inventory](/admin/inventory) panel with full audit trails including the admin user who made the change.
+</Tip>
+
+## Creating a New Order
+
+<Steps>
+  <Step title="Click New Order">
+    Click the **+ New Order** button in the top right.
+  </Step>
+
+  <Step title="Select customer">
+    Choose the customer from the **Cliente** dropdown. Search by name or email.
+  </Step>
+
+  <Step title="Enter delivery address">
+    Fill in the **Dirección de envío** (Shipping address) field (required).
+  </Step>
+
+  <Step title="Add products">
+    - Use the product search or dropdown to find items
+    - Click **+ Ítem** to add the product
+    - Set quantity, price, and discount % for each item
+    - Stock levels are shown for each product (red warning for low stock)
+  </Step>
+
+  <Step title="Review totals">
+    The form automatically calculates:
+    - **Subtotal**: Sum of all items before discounts
+    - **Descuentos**: Total discount amount
+    - **IVA (19%)**: Tax on net amount
+    - **Total Neto**: Final amount
+  </Step>
+
+  <Step title="Select payment method">
+    Choose between:
+    - **Efectivo** (Cash)
+    - **Datáfono** (Card terminal)
+  </Step>
+
+  <Step title="Save order">
+    Click **Guardar Factura** (Save Invoice) to create the order.
+  </Step>
+</Steps>
+
+<Note>
+  When creating orders manually, stock is shown in real-time. If a product has 2 or fewer units in stock, the quantity appears in red as a warning.
+</Note>
+
+## Editing an Existing Order
+
+<Steps>
+  <Step title="Open the edit form">
+    Click the **Editar** (Edit) button on the order card.
+  </Step>
+
+  <Step title="Modify order details">
+    You can update:
+    - Customer
+    - Delivery address
+    - Order status
+    - Tracking number (Nº Guía) if available
+  </Step>
+
+  <Step title="Add or remove products">
+    - Use the product selector to add new items
+    - Click the **✕** button to remove existing items
+    - Update quantities and prices as needed
+  </Step>
+
+  <Step title="Save changes">
+    Click **Guardar cambios** (Save changes) to update the order.
+  </Step>
+</Steps>
+
+## Order Details
+
+Each order card shows a complete breakdown:
+
+### Customer Information
+- 👤 Customer name and email
+- 📍 Delivery address
+- 🚚 Tracking number (when available)
+
+### Product Details
+For each item in the order:
+- Product name and image
+- Quantity (Cant.)
+- Unit price (Precio Unit.)
+- Discount percentage (Dcto.)
+- IVA (19% tax)
+- Subtotal
+
+## Generating Invoice PDFs
+
+Click the **📄 PDF** button on any order to download a printable invoice. The PDF opens in a new tab and includes:
+- Complete order details
+- Customer information
+- Itemized product list with pricing
+- Tax calculations and totals
+
+## Deleting Orders
+
+<Steps>
+  <Step title="Click Delete">
+    Click the **Eliminar** (Delete) button on the order card.
+  </Step>
+
+  <Step title="Confirm deletion">
+    A modal will appear asking you to confirm. The order number is shown.
+  </Step>
+
+  <Step title="Complete deletion">
+    Click **Sí, eliminar** (Yes, delete) to permanently remove the order.
+  </Step>
+</Steps>
+
+<Warning>
+  Deleting an order is permanent and cannot be undone. Consider marking orders as "Cancelled" instead for record-keeping purposes.
+</Warning>
+
+## Order Status Badge Colors
+
+- 🟡 **Yellow**: Pendiente (Pending)
+- 🔵 **Blue**: Pagado (Paid) and Enviado (Shipped)
+- 🟣 **Purple**: En preparación (In Preparation)
+- 🟢 **Green**: Entregado (Delivered)
+- 🔴 **Red**: Cancelado (Cancelled)
+
+## Tips for Order Management
+
+<Tip>
+  **Workflow efficiency:**
+  - Update order status promptly to keep customers informed
+  - Use filters to focus on orders requiring attention (Pending, In Preparation)
+  - Add tracking numbers as soon as shipments are dispatched
+</Tip>
+
+<Tip>
+  **Payment verification:**
+  - Only change status to "Paid" after confirming payment receipt
+  - Use the PDF invoices for payment records and accounting
+  - Document payment method for each transaction
+</Tip>
+
+<Tip>
+  **Inventory accuracy:**
+  - The system automatically adjusts stock when orders are paid/delivered
+  - Monitor low-stock warnings when creating orders
+  - Review inventory movements after status changes to ensure accuracy
+</Tip>

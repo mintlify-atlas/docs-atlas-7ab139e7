@@ -1,0 +1,261 @@
+---
+title: User Management
+description: Manage customer accounts, admin users, and user roles in CompuTécnicos
+---
+
+The Users panel allows you to manage all registered users, assign roles, and control access to the admin panel.
+
+## Accessing Users
+
+Navigate to **Admin Panel** > **Users** to view all registered users in the system.
+
+The users table displays:
+- User name with "Tú" (You) badge for your account
+- Email address
+- Phone number
+- Current role (Cliente/Admin)
+- Registration date
+- Available actions
+
+## User Roles
+
+CompuTécnicos has two user roles:
+
+### Cliente (Customer)
+- Can browse products and make purchases
+- Can view their own order history
+- Can leave product reviews
+- No access to admin panel
+- Default role for new registrations
+
+### Admin (Administrator)
+- Full access to admin panel
+- Can manage products, orders, inventory
+- Can create and edit other users
+- Can view all system data
+
+<Note>
+  There are two types of admin accounts:
+  - **Principal Admin** (Main Admin): Can create other admins and has full permissions
+  - **Regular Admin**: Cannot modify other admin accounts
+</Note>
+
+## Creating a New User
+
+<Steps>
+  <Step title="Open New User form">
+    Click the **+ Nuevo usuario** (New user) button in the top right.
+  </Step>
+
+  <Step title="Enter basic information">
+    - **Nombre** (Name): User's full name (required)
+    - **Email**: User's email address (required, must be unique)
+    - **Teléfono** (Phone): Contact phone number (optional)
+    - **Dirección** (Address): Shipping/billing address (optional)
+  </Step>
+
+  <Step title="Assign role">
+    Select **Rol**:
+    - **Cliente** (Customer): Default for regular users
+    - **Admin** (Administrator): Only visible to principal admins
+  </Step>
+
+  <Step title="Set password">
+    - **Contraseña** (Password): Enter a secure password (required)
+    - **Repetir contraseña** (Repeat password): Confirm password (required)
+    - Both passwords must match
+  </Step>
+
+  <Step title="Save user">
+    Click **Registrar** (Register) to create the user account.
+  </Step>
+</Steps>
+
+<Warning>
+  **Only principal admins can create admin accounts.** If you're a regular admin, the Admin role option won't appear in the dropdown.
+</Warning>
+
+## Editing User Information
+
+<Steps>
+  <Step title="Click Edit">
+    Click the **Editar** (Edit) button next to the user you want to modify.
+  </Step>
+
+  <Step title="Update details">
+    Modify any of the following:
+    - Name
+    - Email
+    - Phone
+    - Role (if permitted)
+    - Address
+  </Step>
+
+  <Step title="Change password (optional)">
+    To reset the user's password:
+    - Enter a new password in **Nueva contraseña**
+    - Confirm it in **Repetir contraseña**
+    - Leave both fields blank to keep the existing password
+  </Step>
+
+  <Step title="Save changes">
+    Click **Guardar cambios** (Save changes) to update the user account.
+  </Step>
+</Steps>
+
+<Tip>
+  Password fields can be left blank when editing. This preserves the user's existing password without requiring you to know or reset it.
+</Tip>
+
+## Changing User Roles
+
+There are two ways to change a user's role:
+
+### Quick Role Change
+1. Locate the user in the table
+2. Click the **Rol** dropdown in their row
+3. Select the new role (Cliente or Admin)
+4. The role is automatically updated
+
+### Via Edit Form
+1. Click **Editar** (Edit) on the user
+2. Change the **Rol** dropdown
+3. Click **Guardar cambios** (Save changes)
+
+<Note>
+  **Role change restrictions:**
+  - You cannot change your own role
+  - Regular admins cannot change another admin to Cliente or vice versa
+  - Only principal admins can promote users to Admin or demote admins
+</Note>
+
+## Deleting Users
+
+<Steps>
+  <Step title="Click Delete">
+    Click the **Eliminar** (Delete) button next to the user.
+  </Step>
+
+  <Step title="Confirm deletion">
+    A confirmation dialog appears showing the user's name.
+  </Step>
+
+  <Step title="Complete deletion">
+    Click **Sí, eliminar** (Yes, delete) to permanently remove the user account.
+  </Step>
+</Steps>
+
+<Warning>
+  **Deletion restrictions:**
+  - You cannot delete your own account
+  - Regular admins cannot delete other admin accounts
+  - Deleting a user is permanent and removes:
+    - User account and login credentials
+    - Associated order history
+    - User reviews and data
+  - This action cannot be undone
+</Warning>
+
+## Permission Levels
+
+### Principal Admin Can:
+- ✅ Create, edit, and delete all users
+- ✅ Create new admin accounts
+- ✅ Change any user's role
+- ✅ Modify other admin accounts
+- ✅ Full system access
+
+### Regular Admin Can:
+- ✅ Create and edit customer (Cliente) accounts
+- ✅ Delete customer accounts
+- ❌ Create admin accounts
+- ❌ Edit other admin accounts
+- ❌ Delete admin accounts
+- ❌ Change their own role
+
+### Customer (Cliente) Can:
+- ❌ No access to user management
+- ❌ No access to admin panel
+
+## User Account Features
+
+### Account Identification
+- Your own account shows a blue **Tú** (You) badge
+- Your account has disabled action buttons (cannot edit/delete yourself)
+- The role dropdown is disabled for your account
+
+### Registration Tracking
+The **Registro** (Registration) column shows when each account was created in DD/MM/YYYY format.
+
+### Contact Information
+Phone and address fields help with:
+- Order fulfillment and delivery
+- Customer communication
+- Account verification
+
+## Security Best Practices
+
+<Tip>
+  **Password policies:**
+  - Use strong passwords with mixed characters
+  - Don't reuse passwords across accounts
+  - Change default passwords immediately
+  - Consider using a password manager
+</Tip>
+
+<Tip>
+  **Admin account management:**
+  - Limit the number of admin accounts
+  - Only grant admin access when necessary
+  - Use regular customer accounts for testing purchases
+  - Review admin accounts periodically
+</Tip>
+
+<Tip>
+  **User data privacy:**
+  - Only collect necessary customer information
+  - Protect customer email addresses
+  - Don't share user data without consent
+  - Comply with data protection regulations
+</Tip>
+
+<Tip>
+  **Principal admin security:**
+  - The principal admin account has full system access
+  - Keep principal admin credentials extremely secure
+  - Use two-factor authentication if available
+  - Log out when not using the admin panel
+</Tip>
+
+## User Management Tips
+
+<Tip>
+  **Customer support:**
+  - Use the edit function to update customer addresses for delivery
+  - Reset passwords for customers who forget them
+  - Verify email addresses before making changes
+</Tip>
+
+<Tip>
+  **Role assignment:**
+  - Start new employees as customers to train them
+  - Promote to admin only after proper training
+  - Document who has admin access and why
+</Tip>
+
+<Tip>
+  **Account cleanup:**
+  - Periodically review inactive accounts
+  - Remove duplicate registrations
+  - Deactivate or delete former employee admin accounts
+</Tip>
+
+## Viewing User Statistics
+
+The top of the Users panel shows:
+- **Total users**: Badge displaying total registered accounts
+- User count includes both customers and admins
+
+<Note>
+  For detailed user activity reports, order history, and purchase analytics, see the main Dashboard or integrate with analytics tools.
+</Note>

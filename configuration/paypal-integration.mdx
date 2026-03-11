@@ -1,0 +1,273 @@
+---
+title: 'PayPal Integration'
+description: 'Configure PayPal payment processing in CompuTécnicos'
+icon: 'paypal'
+---
+
+## Overview
+
+CompuTécnicos integrates with PayPal to process online payments. The platform supports both sandbox (testing) and production environments, with automatic currency conversion from Colombian Pesos (COP) to US Dollars (USD).
+
+## Prerequisites
+
+Before configuring PayPal:
+
+- A PayPal Business account
+- Access to the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/)
+- Basic understanding of PayPal REST API
+
+## Configuration Parameters
+
+The PayPal integration is configured in `config/paypal_config.php` using environment variables:
+
+<ParamField path="PAYPAL_CLIENT_ID" type="string" required>
+  Your PayPal REST API Client ID.
+  
+  **How to obtain:**
+  1. Log in to [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/)
+  2. Navigate to "Apps & Credentials"
+  3. Create a new app or select an existing one
+  4. Copy the Client ID
+</ParamField>
+
+<ParamField path="PAYPAL_CLIENT_SECRET" type="string" required>
+  Your PayPal REST API Client Secret.
+  
+  <Warning>
+  This is a sensitive credential. Never expose it in client-side code, commit it to version control, or share it publicly.
+  </Warning>
+  
+  Found in the same location as the Client ID in the PayPal Developer Dashboard.
+</ParamField>
+
+<ParamField path="PAYPAL_ENVIRONMENT" type="string" default="sandbox">
+  The PayPal environment to use.
+  
+  **Valid values:**
+  - `sandbox` - Test environment for development
+  - `production` - Live environment for real transactions
+  
+  <Warning>
+  Always test thoroughly in sandbox before switching to production.
+  </Warning>
+</ParamField>
+
+## Additional Settings
+
+The following settings are configured directly in `config/paypal_config.php`:
+
+<ParamField path="currency" type="string" default="USD">
+  The currency for PayPal transactions. Set to USD for international compatibility.
+</ParamField>
+
+<ParamField path="exchange_rate_cop_to_usd" type="float" default="0.00025">
+  Currency conversion rate from Colombian Pesos (COP) to US Dollars (USD).
+  
+  Default rate: `0.00025` (approximately 1 USD = 4000 COP)
+  
+  <Note>
+  This is a simplified conversion rate. For production use, consider integrating with a real-time currency exchange API.
+  </Note>
+</ParamField>
+
+## Setup Instructions
+
+<Steps>
+  <Step title="Create PayPal App">
+    1. Go to [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/)
+    2. Click "Apps & Credentials"
+    3. Click "Create App"
+    4. Choose a name for your app (e.g., "CompuTécnicos")
+    5. Select "Merchant" as the app type
+    6. Click "Create App"
+  </Step>
+  
+  <Step title="Get API Credentials">
+    After creating your app:
+    1. Copy the **Client ID** from the app details page
+    2. Click "Show" under **Secret** and copy the **Client Secret**
+    3. Save these credentials securely
+  </Step>
+  
+  <Step title="Configure Environment Variables">
+    Add the credentials to your `.env` file:
+    
+    ```bash
+    # PayPal Sandbox (for testing)
+    PAYPAL_CLIENT_ID=your_sandbox_client_id
+    PAYPAL_CLIENT_SECRET=your_sandbox_client_secret
+    PAYPAL_ENVIRONMENT=sandbox
+    ```
+  </Step>
+  
+  <Step title="Test in Sandbox">
+    1. Use PayPal's [sandbox test accounts](https://developer.paypal.com/dashboard/accounts)
+    2. Create a personal (buyer) test account
+    3. Process test transactions using the sandbox credentials
+    4. Verify payments appear in the sandbox dashboard
+  </Step>
+  
+  <Step title="Switch to Production">
+    When ready for live transactions:
+    
+    1. Create a production app in PayPal Developer Dashboard
+    2. Get production Client ID and Secret
+    3. Update your `.env` file:
+    
+    ```bash
+    # PayPal Production (live transactions)
+    PAYPAL_CLIENT_ID=your_production_client_id
+    PAYPAL_CLIENT_SECRET=your_production_client_secret
+    PAYPAL_ENVIRONMENT=production
+    ```
+    
+    <Warning>
+    Production transactions involve real money. Ensure thorough testing in sandbox first.
+    </Warning>
+  </Step>
+</Steps>
+
+## Configuration File Structure
+
+The `config/paypal_config.php` file returns an array with the following structure:
+
+```php
+return [
+    'client_id' => getenv('PAYPAL_CLIENT_ID') ?: 'default_client_id',
+    'client_secret' => getenv('PAYPAL_CLIENT_SECRET') ?: 'default_secret',
+    'environment' => getenv('PAYPAL_ENVIRONMENT') ?: 'sandbox',
+    'currency' => 'USD',
+    'exchange_rate_cop_to_usd' => 0.00025
+];
+```
+
+## Currency Conversion
+
+Since CompuTécnicos operates in Colombia with prices in COP, but PayPal transactions use USD:
+
+**Conversion Formula:**
+```php
+$amountUSD = $amountCOP * 0.00025;
+```
+
+**Example:**
+- Product price: 100,000 COP
+- PayPal amount: 100,000 × 0.00025 = 25 USD
+
+<Note>
+The default exchange rate (0.00025) is approximate. For accurate, real-time rates, integrate with a currency exchange API like:
+- [Open Exchange Rates](https://openexchangerates.org/)
+- [Currency Layer](https://currencylayer.com/)
+- [Exchange Rates API](https://exchangeratesapi.io/)
+</Note>
+
+## Security Best Practices
+
+<Warning>
+Follow these security guidelines to protect your PayPal integration:
+</Warning>
+
+<Steps>
+  <Step title="Protect API Credentials">
+    - Store Client ID and Secret in environment variables only
+    - Never hardcode credentials in source code
+    - Add `.env` to `.gitignore`
+    - Use different credentials for development and production
+  </Step>
+  
+  <Step title="Use HTTPS">
+    Always use HTTPS in production. PayPal requires secure connections for API calls.
+  </Step>
+  
+  <Step title="Validate Payments Server-Side">
+    Never trust client-side payment confirmations. Always verify payment status through PayPal's API on the server.
+  </Step>
+  
+  <Step title="Implement Webhooks">
+    Set up PayPal webhooks to receive real-time payment notifications and handle asynchronous events.
+  </Step>
+  
+  <Step title="Monitor Transactions">
+    Regularly review transactions in the PayPal dashboard for suspicious activity.
+  </Step>
+  
+  <Step title="Handle Errors Gracefully">
+    Implement proper error handling for failed payments, network issues, and API errors.
+  </Step>
+</Steps>
+
+## Testing in Sandbox
+
+### Creating Test Accounts
+
+1. Go to [Sandbox Accounts](https://developer.paypal.com/dashboard/accounts)
+2. Click "Create Account"
+3. Select "Personal" (Buyer) account type
+4. Set the country to your target market
+5. Configure the balance and credit card details
+6. Click "Create Account"
+
+### Test Credentials
+
+PayPal sandbox provides:
+- Test email addresses
+- Test passwords
+- Virtual balance
+- Fake credit card numbers
+
+### Making Test Payments
+
+1. Use your sandbox Client ID and Secret
+2. Process a payment in your application
+3. Log in with a sandbox buyer account
+4. Complete the payment flow
+5. Verify the transaction in the sandbox dashboard
+
+## Troubleshooting
+
+### Authentication Failed
+
+**Error:** "Authentication failed" or "Invalid client credentials"
+
+**Solutions:**
+- Verify Client ID and Secret are correct
+- Ensure you're using sandbox credentials with `PAYPAL_ENVIRONMENT=sandbox`
+- Check for extra spaces or quotes in environment variables
+- Regenerate credentials in PayPal Developer Dashboard
+
+### Currency Issues
+
+**Error:** Payment amounts don't match expected values
+
+**Solutions:**
+- Verify the exchange rate is set correctly
+- Check that amounts are being converted from COP to USD
+- Ensure currency is set to "USD" in the config
+- Round amounts to 2 decimal places for USD
+
+### Environment Mismatch
+
+**Error:** Transactions failing in production
+
+**Solutions:**
+- Verify you're using production credentials, not sandbox
+- Ensure `PAYPAL_ENVIRONMENT=production`
+- Check that your PayPal business account is verified
+- Verify your app has production access enabled
+
+### SSL/HTTPS Issues
+
+**Error:** "SSL certificate verification failed"
+
+**Solutions:**
+- Ensure your server has up-to-date SSL certificates
+- Verify your PHP installation has cURL with SSL support
+- Check that your redirect URIs use HTTPS in production
+
+## Resources
+
+- [PayPal Developer Documentation](https://developer.paypal.com/docs/)
+- [PayPal REST API Reference](https://developer.paypal.com/api/rest/)
+- [PayPal Sandbox Guide](https://developer.paypal.com/api/rest/sandbox/)
+- [PayPal Integration Wizard](https://developer.paypal.com/integration-wizard/)
+- [PayPal Developer Community](https://www.paypal-community.com/)

@@ -1,0 +1,376 @@
+---
+title: 'Google OAuth Setup'
+description: 'Configure Google Sign-In for user authentication in CompuTécnicos'
+icon: 'google'
+---
+
+## Overview
+
+CompuTécnicos supports Google Sign-In (OAuth 2.0) allowing users to authenticate using their Google accounts. The integration automatically creates user accounts for new users and syncs profile information (name, email, photo) with existing accounts.
+
+## How It Works
+
+The Google OAuth flow in CompuTécnicos:
+
+1. User clicks "Sign in with Google"
+2. Redirected to Google's authentication page
+3. User authorizes the application
+4. Google redirects back with an authorization code
+5. Application exchanges code for access token
+6. Retrieves user profile information (email, name, photo)
+7. Creates new account or updates existing account
+8. Logs the user in with a persistent session (30 days)
+
+## Prerequisites
+
+- A Google Cloud Platform (GCP) account
+- Access to [Google Cloud Console](https://console.cloud.google.com/)
+- PHP Google API Client library (installed via Composer)
+
+## Configuration Parameters
+
+<ParamField path="GOOGLE_CLIENT_ID" type="string" required>
+  Google OAuth 2.0 Client ID for your application.
+  
+  **Format:** `123456789-abcdefghijklmnop.apps.googleusercontent.com`
+  
+  This identifies your application to Google's OAuth service.
+</ParamField>
+
+<ParamField path="GOOGLE_CLIENT_SECRET" type="string" required>
+  Google OAuth 2.0 Client Secret.
+  
+  <Warning>
+  This is a sensitive credential. Never expose it in client-side code, commit it to version control, or share it publicly.
+  </Warning>
+</ParamField>
+
+## Setup Instructions
+
+<Steps>
+  <Step title="Create Google Cloud Project">
+    1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+    2. Click "Select a project" → "New Project"
+    3. Enter project name (e.g., "CompuTécnicos")
+    4. Click "Create"
+    5. Wait for the project to be created and select it
+  </Step>
+  
+  <Step title="Enable Google+ API">
+    1. In your project, go to "APIs & Services" → "Library"
+    2. Search for "Google+ API" or "Google People API"
+    3. Click on the API
+    4. Click "Enable"
+    
+    <Note>
+    The Google+ API is required for retrieving user profile information (email, name, photo).
+    </Note>
+  </Step>
+  
+  <Step title="Configure OAuth Consent Screen">
+    1. Go to "APIs & Services" → "OAuth consent screen"
+    2. Select "External" user type (for public access)
+    3. Click "Create"
+    4. Fill in the required fields:
+       - **App name:** CompuTécnicos
+       - **User support email:** Your support email
+       - **Developer contact:** Your email
+    5. Click "Save and Continue"
+    6. Add scopes:
+       - `userinfo.email`
+       - `userinfo.profile`
+    7. Click "Save and Continue"
+    8. Add test users if in testing mode
+    9. Click "Save and Continue"
+  </Step>
+  
+  <Step title="Create OAuth Credentials">
+    1. Go to "APIs & Services" → "Credentials"
+    2. Click "Create Credentials" → "OAuth client ID"
+    3. Select "Web application" as the application type
+    4. Configure the following:
+       
+       **Name:** CompuTécnicos Web Client
+       
+       **Authorized JavaScript origins:**
+       - `http://localhost:8080` (development)
+       - `https://yourdomain.com` (production)
+       
+       **Authorized redirect URIs:**
+       - `http://localhost:8080/google-callback.php` (development)
+       - `https://yourdomain.com/google-callback.php` (production)
+    
+    5. Click "Create"
+    6. Copy the **Client ID** and **Client Secret**
+  </Step>
+  
+  <Step title="Configure Environment Variables">
+    Add the credentials to your `.env` file:
+    
+    ```bash
+    GOOGLE_CLIENT_ID=123456789-abcdefghijklmnop.apps.googleusercontent.com
+    GOOGLE_CLIENT_SECRET=GOCSPX-your_client_secret_here
+    ```
+  </Step>
+  
+  <Step title="Install Dependencies">
+    Ensure the Google API Client library is installed:
+    
+    ```bash
+    composer require google/apiclient:^2.0
+    ```
+  </Step>
+  
+  <Step title="Test the Integration">
+    1. Start your application
+    2. Navigate to the login page
+    3. Click "Sign in with Google"
+    4. Authenticate with your Google account
+    5. Verify you're redirected back and logged in
+    6. Check that your profile information is displayed correctly
+  </Step>
+</Steps>
+
+## Implementation Details
+
+### Google Client Configuration
+
+The Google OAuth client is configured with:
+
+```php
+$client = new Google_Client();
+$client->setClientId($_ENV['GOOGLE_CLIENT_ID']);
+$client->setClientSecret($_ENV['GOOGLE_CLIENT_SECRET']);
+$client->setRedirectUri(base_url() . '/google-callback.php');
+$client->addScope('email');
+$client->addScope('profile');
+```
+
+### OAuth Scopes
+
+The integration requests the following scopes:
+
+- **email**: Access to user's email address
+- **profile**: Access to user's basic profile info (name, photo)
+
+### Authentication Flow
+
+**Login Initiation** (`google-login.php`):
+```php
+$auth_url = $client->createAuthUrl();
+header('Location: ' . $auth_url);
+```
+
+**Callback Handling** (`google-callback.php`):
+1. Exchange authorization code for access token
+2. Retrieve user information from Google
+3. Check if user exists in database
+4. Create new user or update existing user
+5. Set session variables
+6. Create persistent "remember me" token (30 days)
+7. Redirect to home page
+
+### User Data Handling
+
+When a user authenticates:
+
+**For new users:**
+- Creates account with Google name, email, and photo
+- Generates random password (required by schema)
+- Assigns default role
+- Creates persistent session token
+
+**For existing users:**
+- Updates name and photo from Google profile
+- Maintains existing role and permissions
+- Creates persistent session token
+
+### Retrieved User Information
+
+```php
+$oauth = new Google\Service\Oauth2($client);
+$userInfo = $oauth->userinfo->get();
+
+$email = $userInfo->email;     // User's email address
+$nombre = $userInfo->name;     // Full name
+$foto = $userInfo->picture;    // Profile photo URL
+```
+
+## Security Considerations
+
+<Warning>
+Implement these security best practices for Google OAuth:
+</Warning>
+
+<Steps>
+  <Step title="Protect Client Credentials">
+    - Store Client ID and Secret in environment variables
+    - Never commit credentials to version control
+    - Use different credentials for development and production
+    - Add `.env` to `.gitignore`
+  </Step>
+  
+  <Step title="Validate Redirect URIs">
+    - Only whitelist legitimate redirect URIs in Google Console
+    - Use HTTPS in production (required by Google)
+    - Validate the redirect URI server-side
+  </Step>
+  
+  <Step title="Verify Tokens">
+    - Always validate tokens server-side
+    - Check token expiration
+    - Verify the token issuer is Google
+  </Step>
+  
+  <Step title="Secure User Data">
+    - Store only necessary user information
+    - The profile photo URL from Google is stored directly (external URL)
+    - Hash any generated passwords using strong algorithms
+  </Step>
+  
+  <Step title="Handle Sessions Securely">
+    - Use secure, HTTP-only cookies
+    - Implement CSRF protection
+    - Rotate session tokens periodically
+    - The persistent token is valid for 30 days
+  </Step>
+  
+  <Step title="Use HTTPS">
+    Google requires HTTPS for OAuth in production. Always use SSL certificates.
+  </Step>
+</Steps>
+
+## User Experience
+
+### Success Flow
+
+When authentication succeeds:
+
+1. User is redirected to the home page (`index.php`)
+2. A success message is displayed:
+   - New users: "¡Bienvenido, {name}! Tu cuenta fue creada con Google y has iniciado sesión."
+   - Existing users: "¡Bienvenido, {name}! Has iniciado sesión con Google."
+3. Session persists for 30 days (remember me token)
+4. User profile photo from Google is displayed
+
+### Profile Photo Storage
+
+The integration stores the Google profile photo URL directly in the database:
+
+```php
+$foto_final = $userInfo->picture;
+// Stores the direct Google URL (e.g., https://lh3.googleusercontent.com/...)
+```
+
+<Note>
+Profile photos are hosted by Google, not uploaded to your server. This saves storage space but requires an active internet connection to display.
+</Note>
+
+## Troubleshooting
+
+### Error: "redirect_uri_mismatch"
+
+**Cause:** The redirect URI in your code doesn't match the ones configured in Google Console.
+
+**Solution:**
+1. Check the redirect URI in your code: `base_url() . '/google-callback.php'`
+2. Ensure it exactly matches an authorized redirect URI in Google Console
+3. Include the protocol (`http://` or `https://`)
+4. Match the exact domain and path
+5. Save changes in Google Console and wait a few minutes
+
+### Error: "invalid_client"
+
+**Cause:** Invalid Client ID or Client Secret.
+
+**Solution:**
+- Verify credentials in `.env` match Google Console
+- Check for extra spaces or quotes
+- Ensure you're using the correct project in Google Console
+- Regenerate credentials if necessary
+
+### Error: "access_denied"
+
+**Cause:** User denied permission or OAuth consent screen not configured.
+
+**Solution:**
+- Verify OAuth consent screen is properly configured
+- Check that required scopes are approved
+- If in testing mode, ensure user is added as a test user
+- Publish the OAuth consent screen for public access
+
+### Token Exchange Fails
+
+**Cause:** Unable to exchange authorization code for access token.
+
+**Solution:**
+- Check server time is synchronized (OAuth tokens are time-sensitive)
+- Verify SSL certificates are valid
+- Ensure PHP has cURL extension enabled
+- Check firewall allows outbound HTTPS to Google APIs
+
+### User Info Not Retrieved
+
+**Cause:** API not enabled or insufficient scopes.
+
+**Solution:**
+- Enable Google+ API or People API in Google Console
+- Verify `email` and `profile` scopes are requested
+- Check API quotas haven't been exceeded
+- Ensure access token is valid
+
+### Profile Photo Not Displaying
+
+**Cause:** Photo URL is invalid or external image loading is blocked.
+
+**Solution:**
+- Verify the photo URL is stored correctly in the database
+- Check browser console for CORS or mixed content errors
+- Ensure CSP headers allow images from `googleusercontent.com`
+- Test the photo URL directly in a browser
+
+## Testing
+
+### Development Environment
+
+1. Use `http://localhost:8080` as the authorized origin
+2. Set redirect URI to `http://localhost:8080/google-callback.php`
+3. Test with your personal Google account
+4. Verify account creation and login
+5. Check profile information is synced correctly
+
+### Production Checklist
+
+<Steps>
+  <Step title="Update Redirect URIs">
+    Replace localhost URIs with your production domain in Google Console.
+  </Step>
+  
+  <Step title="Enable HTTPS">
+    Ensure SSL certificate is installed and HTTPS is enforced.
+  </Step>
+  
+  <Step title="Publish OAuth Consent">
+    Change from "Testing" to "In Production" in OAuth consent screen settings.
+  </Step>
+  
+  <Step title="Update Environment Variables">
+    Use production Client ID and Secret in your `.env` file.
+  </Step>
+  
+  <Step title="Test Authentication">
+    Verify the complete flow with multiple test accounts.
+  </Step>
+  
+  <Step title="Monitor Errors">
+    Set up logging for OAuth failures and monitor Google Console for quota/errors.
+  </Step>
+</Steps>
+
+## Resources
+
+- [Google OAuth 2.0 Documentation](https://developers.google.com/identity/protocols/oauth2)
+- [Google Cloud Console](https://console.cloud.google.com/)
+- [Google API PHP Client Library](https://github.com/googleapis/google-api-php-client)
+- [OAuth 2.0 Playground](https://developers.google.com/oauthplayground/)
+- [Google Sign-In Branding Guidelines](https://developers.google.com/identity/branding-guidelines)

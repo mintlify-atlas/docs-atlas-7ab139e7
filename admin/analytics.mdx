@@ -1,0 +1,348 @@
+---
+title: Analytics & Reporting
+description: Track sales trends, visualize business performance, and generate accounting reports for tax compliance and financial analysis
+---
+
+CompuTécnicos provides powerful analytics tools to help you understand your business performance, identify trends, and generate reports for accounting and legal compliance.
+
+## Visual Analytics
+
+The dashboard includes four interactive charts that visualize your sales and inventory data over time.
+
+### Sales by Month
+
+A bar chart showing monthly revenue trends for the past 12 months.
+
+**What it shows:**
+- Total sales amount per month
+- Month-over-month growth patterns
+- Seasonal sales variations
+
+**How to use it:**
+<Steps>
+  <Step title="Identify peak seasons">
+    Look for bars that are significantly higher - these represent your busiest months
+  </Step>
+  
+  <Step title="Spot trends">
+    Is revenue growing, declining, or stable? Use this to forecast future performance
+  </Step>
+  
+  <Step title="Plan inventory">
+    Stock up before historically busy months and reduce inventory during slower periods
+  </Step>
+</Steps>
+
+<Tip>
+If you see a declining trend over several months, consider running promotions or expanding your product catalog to boost sales.
+</Tip>
+
+### Daily Sales (Last 15 Days)
+
+A line chart displaying sales performance for the most recent 15 days.
+
+**What it shows:**
+- Daily revenue fluctuations
+- Week-over-week patterns
+- Recent performance trends
+
+**Use cases:**
+- Verify if recent marketing campaigns are driving sales
+- Identify which days of the week perform best
+- Monitor the immediate impact of pricing changes
+
+<Card title="Example Insight" icon="lightbulb">
+If Fridays consistently show higher sales, consider scheduling new product launches or promotions on Thursday evenings to maximize visibility.
+</Card>
+
+### Orders by Status
+
+A doughnut chart showing the distribution of orders across different statuses.
+
+**Status breakdown:**
+- **Pendiente**: Orders awaiting payment confirmation
+- **Pagado**: Payment received, awaiting shipment
+- **Enviado**: Orders in transit to customers
+- **Entregado**: Successfully delivered orders
+- **Cancelado**: Cancelled orders
+
+**What to watch for:**
+
+<AccordionGroup>
+  <Accordion title="High 'Pendiente' count">
+    Many pending orders may indicate payment processing issues or customer checkout friction. Review your payment gateway settings and checkout flow.
+  </Accordion>
+  
+  <Accordion title="'Pagado' backlog">
+    If many orders are paid but not shipped, you may have fulfillment bottlenecks. Consider streamlining your packing and shipping processes.
+  </Accordion>
+  
+  <Accordion title="High cancellation rate">
+    Excessive cancellations suggest product availability issues, pricing concerns, or poor customer communication. Investigate the root cause.
+  </Accordion>
+</AccordionGroup>
+
+### Top 10 Best Sellers
+
+A horizontal bar chart ranking your most popular products by units sold.
+
+**What it shows:**
+- Which products drive the most sales volume
+- Product popularity rankings
+- Inventory priorities
+
+**Strategic applications:**
+1. **Stock prioritization**: Keep top sellers well-stocked at all times
+2. **Marketing focus**: Feature best sellers prominently on your homepage
+3. **Supplier negotiations**: Use high volume to negotiate better pricing on popular items
+4. **Product development**: Identify characteristics of successful products to guide new purchases
+
+<Warning>
+Don't neglect slower-moving inventory. While best sellers generate volume, high-margin niche products can be equally profitable.
+</Warning>
+
+## Accounting Reports
+
+Access detailed financial reports through the **Reporte Contable** page (linked from the dashboard).
+
+### Report Types
+
+<CardGroup cols={3}>
+  <Card title="General Report" icon="file">
+    All inventory movements with comprehensive financial data
+  </Card>
+  
+  <Card title="Purchases Report" icon="cart-shopping">
+    Only inventory entries with supplier, invoice, and tax information
+  </Card>
+  
+  <Card title="Valued Inventory" icon="money-check-dollar">
+    Current stock valued at average purchase price
+  </Card>
+</CardGroup>
+
+### Generating Reports
+
+<Steps>
+  <Step title="Navigate to Reports">
+    Click **Reporte Legal y Contable** in the dashboard header or the **Reportes** quick access card
+  </Step>
+  
+  <Step title="Set date range">
+    Select your desired start date and end date using the date pickers
+  </Step>
+  
+  <Step title="Choose report type">
+    Select from the dropdown:
+    - **General**: All movements
+    - **Compras**: Purchases only
+    - **Inventario Valorizado**: Stock valuation
+  </Step>
+  
+  <Step title="Apply filters">
+    Click **Filtrar** to generate the report with your selected parameters
+  </Step>
+  
+  <Step title="Export if needed">
+    Click **Exportar Excel** to download a professional spreadsheet for accounting or auditing
+  </Step>
+</Steps>
+
+### Understanding Report Data
+
+#### General Report
+
+Shows all inventory movements (entries and exits) with:
+
+| Field | Description |
+|-------|-------------|
+| **Fecha** | Transaction date |
+| **Tipo** | Movement type (Entrada/Salida/Ajuste) |
+| **Producto** | Product name |
+| **Cantidad** | Units moved |
+| **Precio Unit.** | Price per unit |
+| **IVA** | Value-added tax amount |
+| **Retención** | Tax withholding amount |
+| **Usuario** | Staff member who recorded the movement |
+
+**Financial summary KPIs:**
+- Total purchases for the period
+- Total sales revenue
+- Profit margin (sales minus purchases)
+- IVA paid and collected
+- Withholdings for tax filing
+
+#### Purchases Report
+
+Focuses exclusively on inventory entries with supplier details:
+
+| Field | Description |
+|-------|-------------|
+| **Fecha** | Purchase date |
+| **Producto** | Item purchased |
+| **Proveedor** | Supplier name |
+| **Factura** | Invoice number |
+| **Cantidad** | Units purchased |
+| **Precio Unit.** | Cost per unit |
+| **Total** | Subtotal (quantity × price) |
+| **IVA** | Tax paid |
+| **Retención** | Tax withheld |
+
+**Use for:**
+- Tax filing (IVA declarations)
+- Accounts payable reconciliation
+- Supplier spend analysis
+- Cost accounting
+
+<Tip>
+Run the Purchases Report monthly and save the Excel export for your accountant. This creates an audit trail for all inventory costs.
+</Tip>
+
+#### Valued Inventory Report
+
+Lists all products with current valuation:
+
+| Field | Description |
+|-------|-------------|
+| **Producto** | Product name |
+| **Categoría** | Product category |
+| **Stock Actual** | Current units in inventory |
+| **Precio Promedio** | Average purchase price |
+| **Valor Total** | Stock × average price |
+
+The report footer shows **Valor Total del Inventario** - your total inventory asset value.
+
+**Use for:**
+- Balance sheet preparation
+- Insurance coverage calculations
+- Inventory investment analysis
+- Financial planning
+
+### Export and Accounting Integration
+
+The Excel export feature creates professional spreadsheets with:
+- Formatted tables with headers
+- Calculated totals and subtotals
+- Date ranges in the filename
+- Ready for import into accounting software
+
+<Note>
+Excel files can be imported into QuickBooks, SAP, or other accounting systems. Consult your accountant for the best integration approach.
+</Note>
+
+## Interpreting Your Data
+
+### Healthy Business Indicators
+
+<CardGroup cols={2}>
+  <Card title="Growing monthly sales" icon="chart-line-up">
+    Consistent upward trend in the "Ventas por mes" chart
+  </Card>
+  
+  <Card title="Low cancellation rate" icon="circle-check">
+    Less than 5% of orders in "Cancelado" status
+  </Card>
+  
+  <Card title="Quick fulfillment" icon="truck-fast">
+    Most orders move quickly from "Pagado" to "Enviado"
+  </Card>
+  
+  <Card title="Positive profit margin" icon="coins">
+    Sales significantly exceed purchase costs in General Report
+  </Card>
+</CardGroup>
+
+### Warning Signs
+
+<AccordionGroup>
+  <Accordion title="Declining sales trend">
+    **What it means**: Revenue dropping month-over-month
+    
+    **Actions to take**:
+    - Review competitor pricing
+    - Launch promotional campaigns
+    - Refresh product catalog with new items
+    - Analyze customer feedback for issues
+  </Accordion>
+  
+  <Accordion title="High proportion of pending orders">
+    **What it means**: Customers aren't completing purchases
+    
+    **Actions to take**:
+    - Test your payment gateway
+    - Simplify checkout process
+    - Add more payment options
+    - Implement abandoned cart emails
+  </Accordion>
+  
+  <Accordion title="Best sellers going out of stock">
+    **What it means**: Missing sales opportunities on popular items
+    
+    **Actions to take**:
+    - Set up automatic reorder points
+    - Build stronger supplier relationships
+    - Increase safety stock levels for top products
+    - Consider drop-shipping arrangements
+  </Accordion>
+  
+  <Accordion title="Low inventory turnover">
+    **What it means**: Capital tied up in slow-moving products
+    
+    **Actions to take**:
+    - Run clearance sales on old inventory
+    - Bundle slow movers with best sellers
+    - Be more selective in purchasing decisions
+    - Analyze which categories underperform
+  </Accordion>
+</AccordionGroup>
+
+## Reporting Best Practices
+
+### Daily
+- Check the dashboard KPIs each morning
+- Review low stock alerts and restock critical items
+- Monitor "Pedidos del Mes" to track progress toward monthly goals
+
+### Weekly
+- Analyze the last 15 days sales chart for recent trends
+- Review order status distribution to catch fulfillment issues
+- Check top 10 best sellers to ensure adequate stock
+
+### Monthly
+- Generate a General Report for the past month
+- Compare month-over-month sales growth
+- Run a Purchases Report for accounting
+- Review the 12-month sales trend for seasonal patterns
+
+### Quarterly
+- Export a Valued Inventory Report for financial statements
+- Analyze profit margins across product categories
+- Review year-over-year growth rates
+- Identify underperforming product lines
+
+<Tip>
+Create a monthly reporting checklist and assign it to a staff member. Consistent reporting helps you spot problems early and make data-driven decisions.
+</Tip>
+
+## Data Accuracy
+
+All reports and charts draw data directly from your database with the following logic:
+
+**Sales calculations include orders with status:**
+- Pagado (paid)
+- Enviado (shipped)
+- Entregado (delivered)
+
+**Inventory valuation uses:**
+- Average purchase price from all "entrada" movements
+- Current stock levels from the productos table
+- Most recent cost data for products with no entry history
+
+**Tax calculations:**
+- IVA: Extracted from the `iva` field in movimientos_inventario
+- Retenciones: Extracted from the `retencion` field
+- All currency is in Colombian pesos (COP)
+
+<Warning>
+If reports show unexpected values, verify that all inventory entries include accurate price and tax information. Missing data in movements will affect financial calculations.
+</Warning>

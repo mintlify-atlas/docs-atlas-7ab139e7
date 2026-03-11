@@ -1,0 +1,413 @@
+---
+title: Order Management
+description: Track your orders, view detailed status updates, and download invoices through the comprehensive order tracking system
+---
+
+## Overview
+
+The CompuTécnicos order management system provides complete visibility into your purchase history. Track orders in real-time, view detailed status updates with timestamps, and download invoices for completed purchases.
+
+<Note>
+  You must be logged in to view your orders. The system only displays orders associated with your account.
+</Note>
+
+## Accessing Your Orders
+
+Navigate to your orders page:
+
+1. Log in to your account
+2. Click on your profile menu
+3. Select **"Mis Pedidos"** (My Orders)
+4. View all orders sorted by most recent first
+
+## Order States
+
+Orders progress through distinct states:
+
+<CardGroup cols={2}>
+  <Card title="Pendiente" icon="clock" color="#f59e0b">
+    Order created, awaiting payment
+  </Card>
+  <Card title="Pagado" icon="credit-card" color="#3b82f6">
+    Payment confirmed via PayPal
+  </Card>
+  <Card title="En Preparación" icon="box" color="#8b5cf6">
+    Order being prepared for shipment
+  </Card>
+  <Card title="En Camino" icon="truck" color="#10b981">
+    Order shipped and in transit
+  </Card>
+  <Card title="Entregado" icon="check-circle" color="#22c55e">
+    Successfully delivered to customer
+  </Card>
+  <Card title="Cancelado" icon="x-circle" color="#ef4444">
+    Order cancelled by user or admin
+  </Card>
+</CardGroup>
+
+## Order Display
+
+### Order Card Layout
+
+Each order is displayed in a detailed card showing:
+
+**Header Section:**
+- **Order ID** (e.g., Pedido #123)
+- **Order date and time**
+- **Current status badge** with color coding
+- **Total amount** in COP
+
+**Body Section:**
+- **Product list** with images and quantities
+- **Invoice download** button (for paid orders)
+- **Order tracking** progress bar
+- **Status history** timeline
+- **Tracking number** (when shipped)
+
+### Status Badge Colors
+
+| Status | Color | Meaning |
+|--------|-------|----------|
+| Pendiente | Orange | Action required (payment) |
+| Pagado | Blue | Payment complete |
+| En Preparación | Purple | Being processed |
+| En Camino | Teal | Out for delivery |
+| Entregado | Green | Completed successfully |
+| Cancelado | Red | Order cancelled |
+
+## Order Tracking
+
+### Visual Progress Bar
+
+The tracking system includes a visual progress indicator:
+
+<Accordion title="Progress Bar Features">
+  **Progress Percentage:**
+  - Calculated based on current order stage
+  - Displayed as a percentage (0-100%)
+  - Visual bar fills from left to right
+
+  **Stage Indicators:**
+  - 5 circular step markers
+  - Completed steps: filled with checkmark
+  - Current step: highlighted and animated
+  - Future steps: grayed out
+
+  **Timestamps:**
+  - Each completed step shows date and time
+  - Future steps show "—" placeholder
+</Accordion>
+
+### Tracking Stages
+
+Orders progress through these stages:
+
+1. **Pedido recibido** (Order Received)
+   - Initial order creation
+   - Timestamp: when order was placed
+
+2. **Pagado** (Paid)
+   - Payment confirmation
+   - Timestamp: when PayPal payment completed
+
+3. **En preparación** (In Preparation)
+   - Order being packed
+   - Timestamp: when admin marks as preparing
+
+4. **En camino** (In Transit)
+   - Shipped to customer
+   - Timestamp: when marked as shipped
+
+5. **Entregado** (Delivered)
+   - Successfully delivered
+   - Timestamp: when marked as delivered
+
+<Tip>
+  Click on the tracking progress bar or "Ver historial" button to expand detailed status history.
+</Tip>
+
+## Delivery Estimates
+
+The system provides estimated delivery dates:
+
+### Calculation Method
+
+<Accordion title="Delivery Time Estimation">
+  **Based on Current Status:**
+  - **Pendiente**: +3 days from now
+  - **Pagado**: +2 days from now
+  - **Preparación**: +36 hours from now
+  - **Enviado**: +1 day from now
+  - **Entregado**: Shows "✓ Entregado"
+
+  **Geographic Considerations:**
+  - Bogotá: 1-2 days
+  - Other cities: 3-5 days
+  - Displayed as: "Est. entrega DD/MM HH:mm"
+</Accordion>
+
+<Note>
+  Delivery estimates are calculated from the current time and are subject to carrier performance and location.
+</Note>
+
+## Status History
+
+View complete order timeline:
+
+### History Display
+
+1. Click **"Ver historial"** button on any order
+2. Detailed timeline expands below tracking bar
+3. Each event shows:
+   - **Status name** (e.g., "Pagado")
+   - **Date and time** of status change
+   - **Optional comment** from admin (if any)
+
+### History Entry Format
+
+```
+Pagado — 15/03/2024 14:30 (Pago confirmado vía PayPal)
+En preparación — 16/03/2024 09:15 (Pedido en proceso)
+```
+
+<Tip>
+  Admin comments in the history provide additional context about order processing, such as special handling notes or delay explanations.
+</Tip>
+
+## Product Details
+
+Each order shows complete product information:
+
+### Product Table
+
+Displayed in a structured table:
+
+| Column | Information |
+|--------|-------------|
+| **Producto** | Product image and name |
+| **Cantidad** | Number of units ordered |
+| **Precio unitario** | Price per unit |
+| **Subtotal** | Quantity × Unit Price |
+
+### Product Images
+
+Small thumbnail images (60×40px) help identify products visually in the order list.
+
+## Invoice Management
+
+### Downloading Invoices
+
+For paid and completed orders:
+
+1. Locate the **"Descargar factura"** button
+2. Button appears for orders in states:
+   - Pagado
+   - Preparación
+   - Enviado
+   - Entregado
+3. Click to download PDF invoice
+4. Opens in new tab or downloads directly
+
+<Note>
+  Invoices are only available after payment confirmation. Pending orders cannot generate invoices.
+</Note>
+
+### Invoice Features
+
+Generated invoices include:
+- Company information and logo
+- Customer details
+- Order ID and date
+- Itemized product list
+- Subtotals, taxes, and total
+- Payment method
+- Electronic signature (for Colombian compliance)
+
+<Tip>
+  Keep your invoices for warranty claims and accounting purposes. You can download them multiple times.
+</Tip>
+
+## Tracking Number
+
+When orders are shipped:
+
+### Tracking Box Display
+
+A special tracking section appears showing:
+- **"Número de guía"** label
+- **Tracking code** in monospace font
+- **Copy button** for easy copying
+
+### Using Tracking Numbers
+
+1. Wait for order status to change to "Enviado"
+2. Tracking number appears in order details
+3. Click **"Copiar"** button to copy to clipboard
+4. Use on carrier's website to track shipment
+5. Button shows **"✓ Copiado"** confirmation
+
+<Accordion title="Finding Carrier Information">
+  The carrier used for shipping depends on:
+  - **Delivery location** (urban vs rural)
+  - **Package size and weight**
+  - **Service level selected**
+
+  Common carriers:
+  - Servientrega
+  - Coordinadora
+  - Envía
+  - Interrapidísimo
+
+  Contact support if you need carrier information.
+</Accordion>
+
+## Order States in Detail
+
+### Pendiente (Pending)
+
+**What it means:**
+- Order created but not yet paid
+- Awaiting PayPal payment confirmation
+
+**Customer action:**
+- Complete payment via PayPal
+- Payment page available in checkout
+
+**Duration:**
+- Order automatically cancelled if not paid within 24 hours
+
+### Pagado (Paid)
+
+**What it means:**
+- Payment successfully processed
+- Order confirmed and ready for preparation
+
+**What happens next:**
+- Inventory updated
+- Order queued for fulfillment
+- Invoice generated
+
+**Duration:**
+- Typically moves to "Preparación" within 4-8 hours
+
+### En Preparación (In Preparation)
+
+**What it means:**
+- Items being picked and packed
+- Quality checks performed
+- Shipping label created
+
+**Duration:**
+- Usually 4-12 hours
+- May be longer for large orders
+
+### En Camino (Shipped)
+
+**What it means:**
+- Package handed to carrier
+- Tracking number active
+- In transit to delivery address
+
+**What happens:**
+- Receive tracking number
+- Can track on carrier website
+- Expected delivery within 1-5 days
+
+### Entregado (Delivered)
+
+**What it means:**
+- Package successfully delivered
+- Signed for by recipient
+- Order complete
+
+**After delivery:**
+- Can still download invoice
+- Warranty period begins
+- Can leave product review
+
+### Cancelado (Cancelled)
+
+**What it means:**
+- Order cancelled before fulfillment
+- No charge if cancelled before payment
+- Refund issued if already paid
+
+**Reasons:**
+- Customer request
+- Payment failure
+- Stock unavailable
+- Admin cancellation
+
+## Empty Orders Page
+
+If you have no orders yet:
+
+- **Empty state message** displayed
+- **Icon illustration** for visual feedback
+- **"Explorar productos"** button
+- **Encouragement message** to make first purchase
+
+## Mobile Experience
+
+Order tracking is fully responsive:
+
+### Mobile Optimizations
+
+- **Stacked layout** for order cards
+- **Collapsible sections** to save space
+- **Touch-optimized** buttons and controls
+- **Responsive tables** with horizontal scroll
+- **Mobile-friendly** tracking visualization
+
+<Tip>
+  On mobile, tracking steps are displayed vertically for easier viewing on small screens.
+</Tip>
+
+## Real-Time Updates
+
+Order status updates in real-time:
+
+- **Automatic refresh** when page is reloaded
+- **Instant updates** when admin changes status
+- **Email notifications** sent for major status changes
+- **Push notifications** (if enabled)
+
+## Tips for Order Management
+
+<CardGroup cols={2}>
+  <Card title="Check Regularly" icon="refresh">
+    Visit the orders page to see latest status updates
+  </Card>
+  <Card title="Save Invoices" icon="download">
+    Download and save invoices for records
+  </Card>
+  <Card title="Track Shipments" icon="location-dot">
+    Use tracking numbers on carrier websites for detailed location info
+  </Card>
+  <Card title="Contact Support" icon="headset">
+    Reach out if status hasn't updated in expected timeframe
+  </Card>
+</CardGroup>
+
+## Delivery Guarantee Program
+
+<Note>
+  **Garantía de entrega**: If your order doesn't arrive by the estimated date, you automatically receive a 10% discount coupon for your next purchase.
+</Note>
+
+The guarantee ensures:
+- **No hassle** - automatically applied
+- **Fair compensation** - 10% off next order
+- **Customer satisfaction** - we value your time
+
+## Contact Support
+
+If you need help with an order:
+
+1. Note your **Order ID** (e.g., #123)
+2. Check **status history** for latest updates
+3. Contact support via:
+   - Email: support@computecnicos.com
+   - Phone: [phone number]
+   - Live chat on website
+4. Provide order ID for faster assistance

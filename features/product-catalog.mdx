@@ -1,0 +1,196 @@
+---
+title: Product Catalog
+description: Browse and search through our extensive computer hardware catalog with advanced filtering and sorting options
+---
+
+## Overview
+
+The CompuTécnicos product catalog provides a comprehensive browsing experience for computer hardware and technology products. Customers can explore products by category, brand, price range, and special offers with real-time search and filtering.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Advanced Search" icon="magnifying-glass">
+    Real-time search across product names, descriptions, categories, and brands
+  </Card>
+  <Card title="Smart Filters" icon="sliders">
+    Filter by category, brand, price range, and special offers
+  </Card>
+  <Card title="Multiple Sort Options" icon="arrow-down-a-z">
+    Sort by newest, price (low to high, high to low), or name (A-Z, Z-A)
+  </Card>
+  <Card title="Stock Visibility" icon="boxes-stacked">
+    Real-time stock availability for each product
+  </Card>
+</CardGroup>
+
+## Browsing Products
+
+### Search Functionality
+
+The catalog includes a hero search bar that allows instant product discovery:
+
+1. **Enter search terms** in the search bar at the top of the products page
+2. **Real-time filtering** shows matching results as you type
+3. **Search matches** against product names, descriptions, categories, and brands
+4. **No page reload** required for basic searches
+
+<Tip>
+  The search feature works client-side for faster results. When you have active filters applied, submitting the search will perform a server-side search to combine with your filters.
+</Tip>
+
+### Filter Options
+
+#### Category Filter
+Filter products by technology category:
+- Processors (Procesadores)
+- RAM Memory (Memorias RAM)
+- Graphics Cards (Tarjetas Gráficas)
+- Storage (Almacenamiento)
+- Peripherals (Periféricos)
+- And more
+
+#### Brand Filter
+Narrow down products by manufacturer or brand name.
+
+#### Price Range
+Set minimum and maximum price limits to find products within your budget:
+- Enter **Min** price (optional)
+- Enter **Max** price (optional)
+- Leave blank for no limit
+
+#### Special Offers
+Enable the **"Solo ofertas"** (Only offers) checkbox to view only products currently on sale.
+
+<Note>
+  The system shows a badge with the total number of active offers available.
+</Note>
+
+### Sorting Options
+
+Choose how products are displayed:
+
+| Sort Option | Description |
+|------------|-------------|
+| **Más recientes** | Newest products first (default) |
+| **Precio: Menor a Mayor** | Lowest price first |
+| **Precio: Mayor a Menor** | Highest price first |
+| **Nombre: A-Z** | Alphabetical order |
+| **Nombre: Z-A** | Reverse alphabetical order |
+
+## Product Display
+
+### Product Cards
+
+Each product is displayed in a card showing:
+
+- **Product image** with hover effects
+- **Category** label
+- **Product name** and brand
+- **Stock status** indicator (In stock / Agotado)
+- **Price** in Colombian Pesos (COP)
+- **Special badges** for NEW and OFFER items
+
+<Accordion title="Understanding Product Badges">
+  - **NUEVO (NEW)**: Recently added products, typically within the last 30 days based on the `nuevo_hasta` date field
+  - **OFERTA (OFFER)**: Products currently on sale with discounted pricing, valid until the `oferta_hasta` date
+</Accordion>
+
+### Stock Indicators
+
+- **En stock**: Product is available for immediate purchase
+- **Agotado**: Product is currently out of stock
+
+<Tip>
+  Products show the exact stock quantity in the cart page, helping you plan your purchases effectively.
+</Tip>
+
+## Pagination
+
+The catalog displays **12 products per page** by default. Use the pagination controls at the bottom to navigate through multiple pages:
+
+- **Previous/Next** arrow buttons for sequential navigation
+- **Page numbers** for direct jumping
+- **Ellipsis (...)** indicates skipped page numbers
+- **Current page** is highlighted
+
+<Note>
+  Pagination preserves your active filters and search terms, so you won't lose your browsing context when changing pages.
+</Note>
+
+## Mobile Experience
+
+The product catalog is fully responsive:
+
+### Mobile Features
+- **Filter sidebar** slides in from the left on mobile devices
+- **Touch-optimized** buttons and controls
+- **Filter toggle button** in the header for easy access
+- **Backdrop overlay** when filters are open
+- **Smooth animations** for better user experience
+
+<Accordion title="Opening Filters on Mobile">
+  1. Tap the **"Filtros"** button in the products header
+  2. The filter sidebar slides in from the left
+  3. Adjust your filters as needed
+  4. Tap **"Aplicar Filtros"** to update results
+  5. Close by tapping the **X button** or the backdrop
+</Accordion>
+
+## Product Details
+
+Click on any product card to view detailed information:
+
+- Full product description
+- Technical specifications
+- Larger product images
+- Add to cart functionality
+- "Buy Now" option for quick checkout
+
+## Tips for Effective Browsing
+
+<CardGroup cols={2}>
+  <Card title="Combine Filters" icon="filter">
+    Use multiple filters together (e.g., category + price range) for precise results
+  </Card>
+  <Card title="Clear Filters" icon="xmark">
+    Use the "Limpiar" button in the filter sidebar to reset all filters at once
+  </Card>
+  <Card title="Check Offers" icon="tag">
+    Visit regularly as new offers are added frequently
+  </Card>
+  <Card title="Sort by Price" icon="dollar-sign">
+    Use price sorting to find the best deals or premium options
+  </Card>
+</CardGroup>
+
+## Technical Details
+
+### URL Parameters
+
+The catalog supports direct linking with URL parameters:
+
+```
+?categoria=procesadores        # Filter by category
+?marca=5                       # Filter by brand ID
+?precio_min=100000             # Minimum price
+?precio_max=500000             # Maximum price
+?orden=precio_asc              # Sort order
+?oferta=1                      # Show only offers
+?busqueda=nvidia               # Search term
+?page=2                        # Page number
+```
+
+<Tip>
+  Share specific product searches with others by copying the URL with your active filters.
+</Tip>
+
+## Performance
+
+The catalog is optimized for speed:
+
+- **Lazy loading** for product images
+- **Real-time client-side** filtering for instant results
+- **Optimized database queries** with proper indexing
+- **Pagination** to limit data transfer
+- **Cached filter options** for faster rendering

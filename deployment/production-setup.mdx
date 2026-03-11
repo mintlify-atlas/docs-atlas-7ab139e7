@@ -1,0 +1,801 @@
+---
+title: 'Production Setup'
+description: 'Best practices and configuration for deploying CompuTécnicos in production environments'
+---
+
+## Overview
+
+Deploying CompuTécnicos to production requires careful attention to security, performance, and reliability. This guide covers essential configurations and best practices for a production-ready deployment.
+
+<Warning>
+**Never deploy to production without:**
+- Changing all default passwords
+- Enabling HTTPS
+- Configuring proper backups
+- Testing payment and invoicing integrations
+</Warning>
+
+## Pre-Deployment Checklist
+
+Before deploying to production, ensure you have completed the following:
+
+- [ ] Changed all database passwords from defaults
+- [ ] Configured HTTPS with valid SSL certificates
+- [ ] Set PayPal to `live` environment
+- [ ] Configured real electronic invoicing credentials
+- [ ] Disabled phpMyAdmin (removed `--profile dev`)
+- [ ] Set up automated database backups
+- [ ] Configured firewall rules
+- [ ] Tested all critical functionality in staging
+- [ ] Prepared monitoring and alerting
+- [ ] Documented rollback procedures
+
+## Security Configuration
+
+### 1. Change All Passwords
+
+<Warning>Using default passwords in production is a critical security risk!</Warning>
+
+<Steps>
+  <Step title="Generate Strong Passwords">
+    Create secure, random passwords for database access:
+
+    ```bash
+    # Generate random passwords
+    openssl rand -base64 32  # For DB_PASS
+    openssl rand -base64 32  # For MYSQL_ROOT_PASSWORD
+    ```
+  </Step>
+
+  <Step title="Update Environment File">
+    Edit your production `.env` file:
+
+    ```bash
+    nano .env
+    ```
+
+    Update these critical variables:
+
+    ```env
+    # Database credentials
+    DB_PASS=your_strong_password_here
+    MYSQL_ROOT_PASSWORD=your_strong_root_password_here
+
+    # Use complex passwords with mix of:
+    # - Uppercase and lowercase letters
+    # - Numbers
+    # - Special characters
+    # - Minimum 20 characters
+    ```
+  </Step>
+
+  <Step title="Secure the .env File">
+    Protect the environment file from unauthorized access:
+
+    ```bash
+    chmod 600 .env
+    chown root:root .env
+    ```
+  </Step>
+</Steps>
+
+### 2. Enable HTTPS
+
+<Warning>Never run e-commerce applications over plain HTTP in production!</Warning>
+
+The `.htaccess` file includes HTTPS redirect rules that are commented out by default. You must enable these after configuring SSL certificates.
+
+<Steps>
+  <Step title="Obtain SSL Certificate">
+    Use Let's Encrypt for free SSL certificates:
+
+    ```bash
+    # Install Certbot
+    apt-get update
+    apt-get install certbot python3-certbot-nginx
+
+    # Generate certificate
+    certbot certonly --standalone -d yourdomain.com -d www.yourdomain.com
+    ```
+
+    <Tip>Certbot automatically renews certificates before expiration.</Tip>
+  </Step>
+
+  <Step title="Configure Reverse Proxy">
+    Set up Nginx as a reverse proxy with SSL. See the [Reverse Proxy Configuration](#reverse-proxy-configuration) section below.
+  </Step>
+
+  <Step title="Enable HTTPS Redirect">
+    Edit `.htaccess` in your application root:
+
+    ```apache
+    # Uncomment these lines in .htaccess:
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    ```
+
+    This configuration is found at lines 10-11 in `.htaccess`.
+  </Step>
+
+  <Step title="Test SSL Configuration">
+    Verify your SSL setup:
+
+    ```bash
+    # Test SSL certificate
+    curl -I https://yourdomain.com
+
+    # Check SSL grade
+    # Visit: https://www.ssllabs.com/ssltest/
+    ```
+  </Step>
+</Steps>
+
+### 3. Security Headers
+
+The `.htaccess` file (lines 31-36) includes security headers. Verify these are active:
+
+```apache
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "SAMEORIGIN"
+Header set X-XSS-Protection "1; mode=block"
+Header set Referrer-Policy "strict-origin-when-cross-origin"
+```
+
+Consider adding additional headers for enhanced security:
+
+```apache
+# Add to .htaccess in the <IfModule mod_headers.c> section
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+```
+
+### 4. File and Directory Protection
+
+The `.htaccess` configuration (lines 14-28) already blocks access to sensitive files and directories:
+
+**Protected File Types:**
+- `.env` files
+- `.ini` configuration files
+- `.log` log files
+- `.sh` shell scripts
+- `.sql` database dumps
+
+**Protected Directories:**
+- `/docker/`
+- `/config/`
+- `/logs/`
+- `/database/`
+- `/scripts/`
+- `/vendor/`
+
+Verify these protections are active by attempting to access blocked resources:
+
+```bash
+# These should return 403 Forbidden:
+curl https://yourdomain.com/.env
+curl https://yourdomain.com/config/
+curl https://yourdomain.com/vendor/
+```
+
+### 5. Disable phpMyAdmin
+
+<Warning>Never expose phpMyAdmin to the internet in production!</Warning>
+
+Remove the `--profile dev` flag when starting services:
+
+```bash
+# Production start (no phpMyAdmin)
+docker-compose up -d
+
+# Development start (includes phpMyAdmin)
+docker-compose --profile dev up -d
+```
+
+If you need database access in production, use SSH tunneling:
+
+```bash
+# From your local machine
+ssh -L 3306:localhost:3306 user@production-server
+
+# Then connect to localhost:3306 with your MySQL client
+```
+
+## Production Deployment Steps
+
+<Steps>
+  <Step title="Prepare the Server">
+    Set up your production server:
+
+    ```bash
+    # Update system packages
+    apt-get update && apt-get upgrade -y
+
+    # Install Docker and Docker Compose
+    curl -fsSL https://get.docker.com | sh
+    systemctl enable docker
+    systemctl start docker
+
+    # Install Git
+    apt-get install git -y
+    ```
+  </Step>
+
+  <Step title="Clone Repository">
+    Deploy the application code:
+
+    ```bash
+    # Clone to production directory
+    cd /opt
+    git clone <repository-url> computecnicos
+    cd computecnicos
+    ```
+  </Step>
+
+  <Step title="Configure Production Environment">
+    Create and configure your production environment:
+
+    ```bash
+    # Copy example environment
+    cp .env.example .env
+
+    # Edit with production values
+    nano .env
+    ```
+
+    **Critical Production Settings:**
+
+    ```env
+    # Application
+    APP_PORT=8080
+
+    # Database - USE STRONG PASSWORDS!
+    DB_NAME=computecnicos
+    DB_USER=computecnicos_user
+    DB_PASS=<strong-password-here>
+    MYSQL_ROOT_PASSWORD=<strong-root-password-here>
+
+    # PayPal - PRODUCTION CREDENTIALS
+    PAYPAL_CLIENT_ID=<production-client-id>
+    PAYPAL_CLIENT_SECRET=<production-secret>
+    PAYPAL_ENVIRONMENT=live
+
+    # Electronic Invoicing - PRODUCTION MODE
+    FE_PROVIDER=alegra
+    FE_SIMULATE=false
+    ALEGRA_TOKEN=<production-token>
+    ALEGRA_EMAIL=<production-email>
+    ```
+
+    <Warning>Set `PAYPAL_ENVIRONMENT=live` and `FE_SIMULATE=false` for production!</Warning>
+  </Step>
+
+  <Step title="Secure Environment File">
+    Protect sensitive configuration:
+
+    ```bash
+    chmod 600 .env
+    chown root:root .env
+    ```
+  </Step>
+
+  <Step title="Deploy Application">
+    Build and start services:
+
+    ```bash
+    # Build images and start containers
+    docker-compose up -d --build
+
+    # Verify all services are running
+    docker-compose ps
+
+    # Check application logs
+    docker-compose logs -f app
+    ```
+  </Step>
+
+  <Step title="Verify Deployment">
+    Test critical functionality:
+
+    ```bash
+    # Check HTTP response
+    curl http://localhost:8080
+
+    # Verify database connection
+    docker-compose exec db mysqladmin -u root -p<password> ping
+
+    # Test container health
+    docker inspect --format='{{.State.Health.Status}}' computecnicos-db
+    ```
+  </Step>
+</Steps>
+
+## Reverse Proxy Configuration
+
+Configure Nginx as a reverse proxy to handle SSL termination and load balancing.
+
+### Nginx Configuration
+
+<CodeGroup>
+```nginx Complete Configuration
+# /etc/nginx/sites-available/computecnicos
+server {
+    listen 80;
+    listen [::]:80;
+    server_name yourdomain.com www.yourdomain.com;
+
+    # Redirect all HTTP to HTTPS
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name yourdomain.com www.yourdomain.com;
+
+    # SSL Configuration
+    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256';
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    # Security Headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+
+    # Logging
+    access_log /var/log/nginx/computecnicos-access.log;
+    error_log /var/log/nginx/computecnicos-error.log;
+
+    # Proxy Configuration
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_http_version 1.1;
+        
+        # Headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $server_name;
+        
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+        
+        # Buffering
+        proxy_buffering on;
+        proxy_buffer_size 4k;
+        proxy_buffers 8 4k;
+        proxy_busy_buffers_size 8k;
+    }
+
+    # Upload size limit
+    client_max_body_size 50M;
+}
+```
+
+```nginx Minimal Configuration
+# Basic reverse proxy setup
+server {
+    listen 80;
+    server_name yourdomain.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name yourdomain.com;
+
+    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+</CodeGroup>
+
+**Enable the Configuration:**
+
+```bash
+# Create symbolic link
+ln -s /etc/nginx/sites-available/computecnicos /etc/nginx/sites-enabled/
+
+# Test configuration
+nginx -t
+
+# Reload Nginx
+systemctl reload nginx
+```
+
+## Firewall Configuration
+
+Configure UFW (Uncomplicated Firewall) to restrict access:
+
+<Steps>
+  <Step title="Install UFW">
+    ```bash
+    apt-get install ufw -y
+    ```
+  </Step>
+
+  <Step title="Configure Rules">
+    ```bash
+    # Allow SSH (critical - do this first!)
+    ufw allow ssh
+    ufw allow 22/tcp
+
+    # Allow HTTP and HTTPS
+    ufw allow 80/tcp
+    ufw allow 443/tcp
+
+    # Block direct access to application port
+    ufw deny 8080/tcp
+
+    # Block direct database access
+    ufw deny 3306/tcp
+    ```
+  </Step>
+
+  <Step title="Enable Firewall">
+    ```bash
+    # Enable UFW
+    ufw enable
+
+    # Verify rules
+    ufw status verbose
+    ```
+  </Step>
+</Steps>
+
+<Warning>Always allow SSH before enabling the firewall, or you may lose access to your server!</Warning>
+
+## Health Checks and Monitoring
+
+### Docker Health Checks
+
+The MySQL container includes a built-in health check (see `docker-compose.yml:64-69`):
+
+```yaml
+healthcheck:
+  test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+  interval: 10s
+  timeout: 5s
+  retries: 5
+  start_period: 30s
+```
+
+Monitor container health:
+
+```bash
+# Check health status
+docker inspect --format='{{.State.Health.Status}}' computecnicos-db
+
+# View health check logs
+docker inspect --format='{{json .State.Health}}' computecnicos-db | jq
+```
+
+### Application Monitoring
+
+Create a simple health check endpoint:
+
+```bash
+# Test application availability
+curl -f http://localhost:8080 || echo "Application is down!"
+
+# Check database connectivity
+docker-compose exec app php -r "
+  \$conn = new mysqli(getenv('DB_HOST'), getenv('DB_USER'), getenv('DB_PASS'), getenv('DB_NAME'));
+  echo \$conn->connect_error ? 'Database error' : 'Database OK';
+"
+```
+
+### Automated Monitoring Script
+
+Create a monitoring script at `/opt/computecnicos/monitor.sh`:
+
+```bash
+#!/bin/bash
+
+# Check if containers are running
+if ! docker-compose ps | grep -q "Up"; then
+    echo "ERROR: Some containers are not running"
+    docker-compose ps
+    exit 1
+fi
+
+# Check database health
+DB_HEALTH=$(docker inspect --format='{{.State.Health.Status}}' computecnicos-db)
+if [ "$DB_HEALTH" != "healthy" ]; then
+    echo "ERROR: Database is not healthy: $DB_HEALTH"
+    exit 1
+fi
+
+# Check disk space
+DISK_USAGE=$(df -h /var/lib/docker | awk 'NR==2 {print $5}' | sed 's/%//')
+if [ $DISK_USAGE -gt 80 ]; then
+    echo "WARNING: Disk usage is at ${DISK_USAGE}%"
+fi
+
+echo "All checks passed"
+```
+
+Run via cron every 5 minutes:
+
+```bash
+# Add to crontab
+*/5 * * * * /opt/computecnicos/monitor.sh >> /var/log/computecnicos-monitor.log 2>&1
+```
+
+## Backup Strategy
+
+### Database Backups
+
+<Steps>
+  <Step title="Create Backup Script">
+    Create `/opt/computecnicos/backup-db.sh`:
+
+    ```bash
+    #!/bin/bash
+    
+    BACKUP_DIR="/opt/backups/computecnicos"
+    DATE=$(date +%Y%m%d_%H%M%S)
+    BACKUP_FILE="$BACKUP_DIR/db_backup_$DATE.sql"
+    
+    # Create backup directory
+    mkdir -p $BACKUP_DIR
+    
+    # Create backup
+    docker-compose -f /opt/computecnicos/docker-compose.yml exec -T db \
+      mysqldump -u root -p${MYSQL_ROOT_PASSWORD} \
+      --single-transaction \
+      --quick \
+      --lock-tables=false \
+      computecnicos > $BACKUP_FILE
+    
+    # Compress backup
+    gzip $BACKUP_FILE
+    
+    # Delete backups older than 30 days
+    find $BACKUP_DIR -name "db_backup_*.sql.gz" -mtime +30 -delete
+    
+    echo "Backup completed: ${BACKUP_FILE}.gz"
+    ```
+
+    Make it executable:
+
+    ```bash
+    chmod +x /opt/computecnicos/backup-db.sh
+    ```
+  </Step>
+
+  <Step title="Schedule Automated Backups">
+    Add to crontab for daily backups at 2 AM:
+
+    ```bash
+    crontab -e
+    ```
+
+    Add this line:
+
+    ```cron
+    0 2 * * * /opt/computecnicos/backup-db.sh >> /var/log/computecnicos-backup.log 2>&1
+    ```
+  </Step>
+
+  <Step title="Test Backup Restoration">
+    Verify your backups work:
+
+    ```bash
+    # Extract backup
+    gunzip -c /opt/backups/computecnicos/db_backup_YYYYMMDD_HHMMSS.sql.gz > restore_test.sql
+    
+    # Test restore in separate database
+    docker-compose exec -T db mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE test_restore"
+    docker-compose exec -T db mysql -u root -p${MYSQL_ROOT_PASSWORD} test_restore < restore_test.sql
+    
+    # Verify and cleanup
+    docker-compose exec db mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "DROP DATABASE test_restore"
+    rm restore_test.sql
+    ```
+  </Step>
+</Steps>
+
+### File Backups
+
+Back up uploaded files and logs:
+
+```bash
+#!/bin/bash
+# /opt/computecnicos/backup-files.sh
+
+BACKUP_DIR="/opt/backups/computecnicos"
+DATE=$(date +%Y%m%d_%H%M%S)
+
+# Backup uploads
+docker run --rm -v computecnicos_uploads_data:/uploads -v $BACKUP_DIR:/backup \
+  alpine tar czf /backup/uploads_$DATE.tar.gz -C /uploads .
+
+# Backup logs
+docker run --rm -v computecnicos_app_logs:/logs -v $BACKUP_DIR:/backup \
+  alpine tar czf /backup/logs_$DATE.tar.gz -C /logs .
+
+# Cleanup old backups
+find $BACKUP_DIR -name "uploads_*.tar.gz" -mtime +30 -delete
+find $BACKUP_DIR -name "logs_*.tar.gz" -mtime +7 -delete
+```
+
+### Off-Site Backup
+
+Consider using cloud storage for off-site backups:
+
+```bash
+# Install rclone for cloud backup
+curl https://rclone.org/install.sh | bash
+
+# Configure cloud storage (example: AWS S3)
+rclone config
+
+# Sync backups to cloud
+rclone sync /opt/backups/computecnicos remote:computecnicos-backups
+```
+
+## Performance Optimization
+
+### PHP Configuration
+
+The `docker/php/custom.ini` file should include production-optimized settings:
+
+```ini
+; Memory and execution
+memory_limit = 256M
+max_execution_time = 300
+max_input_time = 300
+
+; File uploads
+upload_max_filesize = 50M
+post_max_size = 50M
+
+; OPcache (enabled by default in production)
+opcache.enable = 1
+opcache.memory_consumption = 128
+opcache.max_accelerated_files = 10000
+opcache.revalidate_freq = 60
+
+; Session
+session.gc_maxlifetime = 3600
+session.cookie_httponly = 1
+session.cookie_secure = 1
+```
+
+### MySQL Optimization
+
+The `docker-compose.yml:59-63` includes optimized MySQL settings:
+
+```yaml
+command: >
+  --default-authentication-plugin=mysql_native_password
+  --character-set-server=utf8mb4
+  --collation-server=utf8mb4_unicode_ci
+  --max-allowed-packet=64M
+```
+
+For high-traffic sites, add to the command:
+
+```yaml
+--innodb-buffer-pool-size=1G
+--innodb-log-file-size=256M
+--query-cache-type=1
+--query-cache-size=64M
+```
+
+### Apache Caching
+
+The `.htaccess` configuration (lines 44-54) includes cache headers for static assets:
+
+```apache
+ExpiresActive On
+ExpiresByType image/jpeg "access plus 1 month"
+ExpiresByType image/png "access plus 1 month"
+ExpiresByType text/css "access plus 1 week"
+ExpiresByType application/javascript "access plus 1 week"
+```
+
+## Logging and Debugging
+
+### Application Logs
+
+Access application logs through Docker:
+
+```bash
+# Follow application logs
+docker-compose logs -f app
+
+# View last 100 lines
+docker-compose logs --tail=100 app
+
+# Save logs to file
+docker-compose logs app > /var/log/app-logs.txt
+```
+
+### PHP Error Logs
+
+For production, errors should be logged but not displayed:
+
+```php
+; In php.ini or custom.ini
+display_errors = Off
+log_errors = On
+error_log = /var/www/html/logs/php-error.log
+```
+
+### Database Query Logs
+
+Enable MySQL slow query log for performance monitoring:
+
+```bash
+docker-compose exec db mysql -u root -p -e "
+  SET GLOBAL slow_query_log = 'ON';
+  SET GLOBAL long_query_time = 2;
+  SET GLOBAL slow_query_log_file = '/var/log/mysql/slow-query.log';
+"
+```
+
+## Maintenance Windows
+
+### Zero-Downtime Updates
+
+Update application code without downtime:
+
+```bash
+# Pull latest code
+git pull origin main
+
+# Build new images
+docker-compose build
+
+# Rolling update
+docker-compose up -d --no-deps --build app
+
+# Verify
+docker-compose ps
+docker-compose logs -f app
+```
+
+### Database Migrations
+
+Always back up before running migrations:
+
+```bash
+# Backup database
+./backup-db.sh
+
+# Run migration scripts
+docker-compose exec app php scripts/migrate.php
+
+# Verify
+docker-compose logs app
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Docker Deployment" icon="docker" href="/deployment/docker-deployment">
+    Review complete Docker deployment guide
+  </Card>
+  <Card title="Environment Variables" icon="gear" href="/configuration/environment-variables">
+    Configure your production environment
+  </Card>
+</CardGroup>

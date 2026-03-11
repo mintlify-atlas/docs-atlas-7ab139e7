@@ -1,0 +1,420 @@
+---
+title: 'Docker Deployment'
+description: 'Complete guide to deploying CompuTécnicos using Docker and Docker Compose'
+---
+
+## Overview
+
+CompuTécnicos uses Docker for containerized deployment, providing a consistent environment across development and production. The application stack includes:
+
+- **App Container**: PHP 8.2 + Apache web server
+- **Database Container**: MySQL 8.0 with persistent storage
+- **phpMyAdmin**: Database management tool (development only)
+
+## Prerequisites
+
+Before deploying with Docker, ensure you have:
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed
+- [Docker Compose](https://docs.docker.com/compose/) (included with Docker Desktop)
+- Git for cloning the repository
+- Basic knowledge of command line operations
+
+## Quick Start
+
+<Steps>
+  <Step title="Clone the Repository">
+    Clone the CompuTécnicos repository to your server or local machine:
+
+    ```bash
+    git clone <repository-url> computecnicos
+    cd computecnicos
+    ```
+  </Step>
+
+  <Step title="Configure Environment Variables">
+    Create your environment configuration file:
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    Edit the `.env` file with your preferred text editor:
+
+    ```bash
+    nano .env
+    ```
+
+    <Tip>The `.env.example` file comes with pre-configured defaults suitable for development.</Tip>
+  </Step>
+
+  <Step title="Build and Start Services">
+    Build the Docker images and start all services:
+
+    ```bash
+    docker-compose up -d --build
+    ```
+
+    The `-d` flag runs containers in detached mode (background), and `--build` ensures images are rebuilt with the latest code.
+  </Step>
+
+  <Step title="Verify Deployment">
+    Check that all services are running:
+
+    ```bash
+    docker-compose ps
+    ```
+
+    View application logs:
+
+    ```bash
+    docker-compose logs -f app
+    ```
+
+    Press `Ctrl+C` to exit log viewing.
+  </Step>
+
+  <Step title="Access the Application">
+    Open your browser and navigate to:
+
+    - **Application**: http://localhost:8080
+    - **phpMyAdmin** (dev mode): http://localhost:8081
+  </Step>
+</Steps>
+
+## Environment Variables
+
+Configure these variables in your `.env` file:
+
+### Application Ports
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `APP_PORT` | `8080` | Port for accessing the web application |
+| `DB_PORT` | `3306` | External port for MySQL database |
+| `PMA_PORT` | `8081` | Port for phpMyAdmin interface |
+
+### Database Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DB_NAME` | `computecnicos` | Database name |
+| `DB_USER` | `computecnicos_user` | Application database user |
+| `DB_PASS` | `computecnicos_secret` | Application database password |
+| `MYSQL_ROOT_PASSWORD` | `root_secret` | MySQL root password |
+
+<Warning>Change all default passwords before deploying to production!</Warning>
+
+### Payment Integration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PAYPAL_CLIENT_ID` | - | PayPal API client ID |
+| `PAYPAL_CLIENT_SECRET` | - | PayPal API secret key |
+| `PAYPAL_ENVIRONMENT` | `sandbox` | PayPal environment (`sandbox` or `live`) |
+
+### Electronic Invoicing
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FE_PROVIDER` | `alegra` | Invoicing provider (`alegra` or `siigo`) |
+| `FE_SIMULATE` | `true` | Enable simulation mode for testing |
+| `ALEGRA_TOKEN` | - | Alegra API authentication token |
+| `ALEGRA_EMAIL` | - | Alegra account email |
+| `SIIGO_CLIENT_ID` | - | Siigo OAuth client ID |
+| `SIIGO_CLIENT_SECRET` | - | Siigo OAuth client secret |
+| `SIIGO_USERNAME` | - | Siigo account username |
+| `SIIGO_PASSWORD` | - | Siigo account password |
+
+## Docker Commands
+
+### Service Management
+
+<CodeGroup>
+```bash Start Services
+# Start all services in background
+docker-compose up -d
+
+# Start with logs visible
+docker-compose up
+```
+
+```bash Stop Services
+# Stop all services (keeps data)
+docker-compose down
+
+# Stop and remove volumes (deletes database data)
+docker-compose down -v
+```
+
+```bash Restart Services
+# Restart all services
+docker-compose restart
+
+# Restart specific service
+docker-compose restart app
+docker-compose restart db
+```
+
+```bash Rebuild After Code Changes
+# Rebuild and restart application
+docker-compose up -d --build
+```
+</CodeGroup>
+
+### Development Mode
+
+Enable phpMyAdmin for database management:
+
+```bash
+docker-compose --profile dev up -d
+```
+
+<Tip>phpMyAdmin will be accessible at http://localhost:8081</Tip>
+
+### Monitoring and Logs
+
+<CodeGroup>
+```bash View Status
+# Check service status
+docker-compose ps
+```
+
+```bash Application Logs
+# Follow application logs in real-time
+docker-compose logs -f app
+
+# View last 100 lines
+docker-compose logs --tail=100 app
+```
+
+```bash Database Logs
+# Follow MySQL logs
+docker-compose logs -f db
+```
+
+```bash All Services
+# View logs from all services
+docker-compose logs -f
+```
+</CodeGroup>
+
+### Container Access
+
+<CodeGroup>
+```bash App Container
+# Open bash shell in app container
+docker-compose exec app bash
+
+# Execute PHP script
+docker-compose exec app php scripts/seed_random_products.php
+
+# Fix file permissions
+docker-compose exec app chown -R www-data:www-data /var/www/html/uploads
+docker-compose exec app chmod -R 775 /var/www/html/uploads
+```
+
+```bash Database Container
+# Access MySQL CLI
+docker-compose exec db mysql -u computecnicos_user -pcomputecnicos_secret computecnicos
+
+# Access as root user
+docker-compose exec db mysql -u root -proot_secret
+```
+</CodeGroup>
+
+## Database Management
+
+### Manual SQL Import
+
+Import SQL files directly into the database:
+
+```bash
+docker-compose exec -T db mysql -u root -proot_secret computecnicos < database/computecnicos_full.sql
+```
+
+<Note>The `-T` flag disables pseudo-TTY allocation, which is required for piping input.</Note>
+
+### Backup and Restore
+
+<CodeGroup>
+```bash Create Backup
+# Export database with timestamp
+docker-compose exec db mysqldump -u root -proot_secret computecnicos > backup_$(date +%Y%m%d).sql
+
+# With specific options
+docker-compose exec db mysqldump \
+  -u root -proot_secret \
+  --single-transaction \
+  --quick \
+  computecnicos > backup.sql
+```
+
+```bash Restore Backup
+# Restore from backup file
+docker-compose exec -T db mysql -u root -proot_secret computecnicos < backup.sql
+```
+</CodeGroup>
+
+## Docker Architecture
+
+The CompuTécnicos Docker setup consists of:
+
+### Dockerfile (`Dockerfile:1-93`)
+
+Multi-stage build configuration that:
+
+- Uses PHP 8.2 with Apache as base image
+- Installs required system dependencies and PHP extensions
+- Enables Apache modules: `rewrite`, `headers`, `expires`
+- Configures optimized PHP settings for production
+- Installs Composer for dependency management
+- Creates required directories with proper permissions
+- Sets up custom entrypoint script for initialization
+
+**Key PHP Extensions Installed:**
+- `pdo`, `pdo_mysql`, `mysqli` - Database connectivity
+- `gd` - Image processing
+- `zip` - Archive handling
+- `intl` - Internationalization
+- `mbstring` - Multibyte string support
+- `opcache` - PHP bytecode caching
+- `xml` - XML processing
+
+### Docker Compose (`docker-compose.yml:1-105`)
+
+Orchestrates three services:
+
+1. **app** - PHP/Apache application container
+   - Exposes port 8080 (configurable via `APP_PORT`)
+   - Mounts persistent volumes for uploads and logs
+   - Depends on healthy database connection
+
+2. **db** - MySQL 8.0 database container
+   - Exposes port 3306 for external access
+   - Auto-imports SQL schema on first run
+   - Includes health check for service dependencies
+   - Uses persistent volume for data storage
+
+3. **phpmyadmin** - Database management interface
+   - Only runs when `dev` profile is active
+   - Accessible on port 8081
+   - Automatically connects to database
+
+### Persistent Volumes
+
+Three volumes ensure data persistence:
+
+- `db_data` - MySQL database files
+- `uploads_data` - User uploaded files
+- `app_logs` - Application logs
+
+### Network
+
+All services communicate through the `computecnicos-net` bridge network, providing isolation and service discovery.
+
+## Troubleshooting
+
+### Database Connection Issues
+
+<Steps>
+  <Step title="Check Container Status">
+    Verify that the database container is healthy:
+
+    ```bash
+    docker-compose ps
+    ```
+
+    Look for `healthy` status on the `db` service.
+  </Step>
+
+  <Step title="Review Database Logs">
+    Check MySQL logs for errors:
+
+    ```bash
+    docker-compose logs db
+    ```
+  </Step>
+
+  <Step title="Restart Database">
+    Try restarting the database service:
+
+    ```bash
+    docker-compose restart db
+    ```
+
+    Wait 30 seconds for the health check to pass.
+  </Step>
+
+  <Step title="Verify Credentials">
+    Ensure environment variables match in both services:
+
+    ```bash
+    docker-compose exec app env | grep DB_
+    ```
+  </Step>
+</Steps>
+
+### Permission Errors
+
+If you encounter file permission errors in the uploads directory:
+
+```bash
+docker-compose exec app chown -R www-data:www-data /var/www/html/uploads
+docker-compose exec app chmod -R 775 /var/www/html/uploads
+```
+
+For log directory permissions:
+
+```bash
+docker-compose exec app chown -R www-data:www-data /var/www/html/logs
+docker-compose exec app chmod -R 775 /var/www/html/logs
+```
+
+### Port Already in Use
+
+If ports 8080, 3306, or 8081 are already in use:
+
+1. Edit your `.env` file
+2. Change the conflicting port variables (`APP_PORT`, `DB_PORT`, `PMA_PORT`)
+3. Restart services: `docker-compose up -d`
+
+### Complete Reset
+
+To rebuild everything from scratch:
+
+<Warning>This will delete all database data and uploaded files!</Warning>
+
+```bash
+# Stop and remove everything
+docker-compose down -v
+
+# Remove images
+docker-compose rm -f
+
+# Rebuild and start
+docker-compose up -d --build
+```
+
+### Container Won't Start
+
+Check detailed error messages:
+
+```bash
+# View full logs
+docker-compose logs app
+
+# Inspect container configuration
+docker inspect computecnicos-app
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Production Setup" icon="server" href="/deployment/production-setup">
+    Configure CompuTécnicos for production deployment
+  </Card>
+  <Card title="Environment Variables" icon="gear" href="/configuration/environment-variables">
+    Configure environment variables for your deployment
+  </Card>
+</CardGroup>

@@ -1,0 +1,280 @@
+---
+title: 'Environment Variables'
+description: 'Complete reference for all environment variables in CompuTécnicos'
+icon: 'file-code'
+---
+
+## Overview
+
+CompuTécnicos uses environment variables to configure all aspects of the application. Variables are loaded from a `.env` file in the project root.
+
+<Warning>
+Never commit your `.env` file to version control. Always use `.env.example` as a template and create your own `.env` file locally.
+</Warning>
+
+## Quick Start
+
+Copy the example file and customize it:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` with your specific values.
+
+## Application Ports
+
+These variables control which ports the application services use:
+
+<ParamField path="APP_PORT" type="string" default="8080">
+  The port where the main application will be accessible. Access the application at `http://localhost:8080`.
+</ParamField>
+
+<ParamField path="DB_PORT" type="string" default="3306">
+  Port for the MySQL database server. Standard MySQL port is 3306.
+</ParamField>
+
+<ParamField path="PMA_PORT" type="string" default="8081">
+  Port for phpMyAdmin interface. Access at `http://localhost:8081`.
+</ParamField>
+
+## Database Configuration
+
+Database connection settings:
+
+<ParamField path="DB_NAME" type="string" default="computecnicos" required>
+  The MySQL database name. This database must exist before starting the application.
+</ParamField>
+
+<ParamField path="DB_USER" type="string" default="computecnicos_user" required>
+  MySQL username for application database access.
+</ParamField>
+
+<ParamField path="DB_PASS" type="string" default="computecnicos_secret" required>
+  Password for the database user.
+  
+  <Warning>Use a strong password in production. Never use the default value.</Warning>
+</ParamField>
+
+<ParamField path="MYSQL_ROOT_PASSWORD" type="string" default="root_secret" required>
+  Root password for MySQL server (Docker only).
+  
+  <Warning>Critical security setting. Use a strong, unique password.</Warning>
+</ParamField>
+
+## PayPal Integration
+
+Configure PayPal payment processing:
+
+<ParamField path="PAYPAL_CLIENT_ID" type="string" default="your_paypal_client_id" required>
+  Your PayPal application Client ID. Obtain this from the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/).
+</ParamField>
+
+<ParamField path="PAYPAL_CLIENT_SECRET" type="string" default="your_paypal_client_secret" required>
+  Your PayPal application Client Secret.
+  
+  <Warning>Keep this secret secure. Never expose it in client-side code or commit it to version control.</Warning>
+</ParamField>
+
+<ParamField path="PAYPAL_ENVIRONMENT" type="string" default="sandbox">
+  PayPal environment mode. Use `sandbox` for testing and `production` for live transactions.
+  
+  Valid values:
+  - `sandbox` - Test environment with fake transactions
+  - `production` - Live environment with real money
+</ParamField>
+
+## Google OAuth
+
+Enable Google Sign-In functionality:
+
+<ParamField path="GOOGLE_CLIENT_ID" type="string" required>
+  Google OAuth 2.0 Client ID. Obtain from [Google Cloud Console](https://console.cloud.google.com/).
+  
+  Example: `123456789-abcdefghijklmnop.apps.googleusercontent.com`
+</ParamField>
+
+<ParamField path="GOOGLE_CLIENT_SECRET" type="string" required>
+  Google OAuth 2.0 Client Secret.
+  
+  <Warning>Keep this secret secure. Never expose it publicly.</Warning>
+</ParamField>
+
+## Electronic Invoicing
+
+Configure Colombian electronic invoicing providers:
+
+<ParamField path="FE_PROVIDER" type="string" default="alegra">
+  Electronic invoicing provider to use.
+  
+  Valid values:
+  - `alegra` - Alegra invoicing service
+  - `siigo` - Siigo invoicing service
+</ParamField>
+
+<ParamField path="FE_SIMULATE" type="boolean" default="true">
+  Enable simulation mode for testing without creating real invoices.
+  
+  Set to `false` in production to generate actual invoices.
+</ParamField>
+
+### Alegra Configuration
+
+<ParamField path="ALEGRA_TOKEN" type="string">
+  Alegra API authentication token. Required when `FE_PROVIDER=alegra`.
+</ParamField>
+
+<ParamField path="ALEGRA_EMAIL" type="string">
+  Email address associated with your Alegra account.
+</ParamField>
+
+### Siigo Configuration
+
+<ParamField path="SIIGO_CLIENT_ID" type="string">
+  Siigo OAuth Client ID. Required when `FE_PROVIDER=siigo`.
+</ParamField>
+
+<ParamField path="SIIGO_CLIENT_SECRET" type="string">
+  Siigo OAuth Client Secret.
+  
+  <Warning>Keep this secret secure.</Warning>
+</ParamField>
+
+<ParamField path="SIIGO_USERNAME" type="string">
+  Siigo account username for API access.
+</ParamField>
+
+<ParamField path="SIIGO_PASSWORD" type="string">
+  Siigo account password.
+  
+  <Warning>Store securely and never commit to version control.</Warning>
+</ParamField>
+
+## Complete Example
+
+Here's a complete `.env` file example:
+
+```bash
+# ============================================
+# Variables de entorno - CompuTécnicos Docker
+# Copia este archivo como .env y ajusta los valores
+# ============================================
+
+# ─── Puertos ───
+APP_PORT=8080
+DB_PORT=3306
+PMA_PORT=8081
+
+# ─── Base de datos ───
+DB_NAME=computecnicos
+DB_USER=computecnicos_user
+DB_PASS=computecnicos_secret
+MYSQL_ROOT_PASSWORD=root_secret
+
+# ─── PayPal (Sandbox) ───
+PAYPAL_CLIENT_ID=your_paypal_client_id
+PAYPAL_CLIENT_SECRET=your_paypal_client_secret
+PAYPAL_ENVIRONMENT=sandbox
+
+# ─── Facturación Electrónica ───
+FE_PROVIDER=alegra
+FE_SIMULATE=true
+ALEGRA_TOKEN=
+ALEGRA_EMAIL=
+SIIGO_CLIENT_ID=
+SIIGO_CLIENT_SECRET=
+SIIGO_USERNAME=
+SIIGO_PASSWORD=
+
+# ─── Google OAuth ───
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+```
+
+## Environment-Specific Configuration
+
+### Development
+
+```bash
+APP_PORT=8080
+PAYPAL_ENVIRONMENT=sandbox
+FE_SIMULATE=true
+```
+
+### Production
+
+<Warning>
+Always use production credentials and disable simulation modes in production.
+</Warning>
+
+```bash
+APP_PORT=80
+PAYPAL_ENVIRONMENT=production
+FE_SIMULATE=false
+# Use strong passwords
+DB_PASS=your_very_strong_password
+MYSQL_ROOT_PASSWORD=your_very_strong_root_password
+```
+
+## Security Best Practices
+
+<Steps>
+  <Step title="Never Commit .env Files">
+    Add `.env` to your `.gitignore` file to prevent accidentally committing secrets.
+  </Step>
+  
+  <Step title="Use Strong Passwords">
+    Generate strong, unique passwords for all credentials. Use a password manager.
+  </Step>
+  
+  <Step title="Restrict File Permissions">
+    Set restrictive permissions on your `.env` file:
+    ```bash
+    chmod 600 .env
+    ```
+  </Step>
+  
+  <Step title="Rotate Credentials Regularly">
+    Change passwords and API keys periodically, especially after team member changes.
+  </Step>
+  
+  <Step title="Use Different Credentials per Environment">
+    Never reuse production credentials in development or staging environments.
+  </Step>
+  
+  <Step title="Monitor for Exposed Secrets">
+    Use tools like git-secrets or GitHub's secret scanning to detect accidentally committed secrets.
+  </Step>
+</Steps>
+
+## Validation
+
+Verify your environment variables are loaded correctly:
+
+```php
+<?php
+// Check if a variable is set
+if (!getenv('PAYPAL_CLIENT_ID')) {
+    die('PAYPAL_CLIENT_ID not configured');
+}
+```
+
+## Troubleshooting
+
+### Variables Not Loading
+
+If environment variables aren't being recognized:
+
+1. Verify the `.env` file exists in the project root
+2. Check file permissions (should be readable by the web server)
+3. Ensure there are no syntax errors in the `.env` file
+4. Restart your web server or Docker containers after changes
+
+### Syntax Errors
+
+Common `.env` syntax rules:
+
+- No spaces around the `=` sign: `KEY=value` (not `KEY = value`)
+- Use quotes for values with spaces: `KEY="value with spaces"`
+- Comments start with `#`
+- Empty values are allowed: `KEY=`

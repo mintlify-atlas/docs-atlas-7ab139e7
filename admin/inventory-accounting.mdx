@@ -1,0 +1,223 @@
+---
+title: Inventory Accounting
+description: Professional inventory accounting features with Colombian tax compliance
+---
+
+CompuTécnicos includes professional accounting features for inventory management, enabling you to track purchases, costs, taxes, and supporting documentation in compliance with Colombian regulations.
+
+## Accounting Fields
+
+When registering inventory movements (particularly purchases), the system captures comprehensive accounting information:
+
+<ParamField path="id_proveedor" type="integer" required>
+  Provider ID - Reference to the supplier/vendor making the sale
+</ParamField>
+
+<ParamField path="numero_factura" type="string" required>
+  Invoice Number - Legal invoice number from the supplier for tax compliance
+</ParamField>
+
+<ParamField path="precio_unitario" type="decimal" required>
+  Unit Price - Cost per unit at time of purchase (used for inventory valuation)
+</ParamField>
+
+<ParamField path="iva" type="decimal">
+  IVA (Value Added Tax) - Amount of IVA paid on this purchase. Standard Colombian IVA rate is 19%
+</ParamField>
+
+<ParamField path="retencion" type="decimal">
+  Retención (Withholding Tax) - Amount of withholding tax applied to this transaction
+</ParamField>
+
+<ParamField path="fecha_factura" type="date">
+  Invoice Date - Date on the legal invoice document
+</ParamField>
+
+<ParamField path="soporte_documental" type="file">
+  Supporting Document - PDF or JPG file of the invoice or receipt. One file per product/purchase
+</ParamField>
+
+## Recording Inventory Movements
+
+To register an inventory purchase with accounting information:
+
+1. Navigate to **Admin → Inventory**
+2. Click **"+ New Movement"**
+3. Select **"Entry (Purchase)"** as movement type - this activates accounting fields
+4. Fill in all required fields:
+   - Product
+   - Provider
+   - Invoice number
+   - Unit price
+   - IVA (optional but recommended)
+   - Withholding tax (if applicable)
+   - Supporting document (PDF/JPG)
+5. Submit the form
+
+The system validates all accounting data and stores it with transaction integrity using database transactions.
+
+## Document Management
+
+### Uploading Supporting Documents
+
+The system manages supporting documents (invoices, receipts) similar to profile photos:
+
+- **One document per product/purchase**: Each inventory movement can have one associated file
+- **Automatic replacement**: Uploading a new document automatically deletes the previous one
+- **Supported formats**: PDF and JPG files only
+- **File naming**: Documents are stored as `soporte_[product_id]_[timestamp].[ext]`
+- **Storage location**: Files are saved in `uploads/soportes/`
+
+### Viewing Documents
+
+In the inventory table, click the **"View"** button in the "Support" column to open the document in a new tab.
+
+### Cleaning Orphaned Files
+
+Over time, orphaned files (documents without database references) may accumulate. To clean them:
+
+1. Go to **Admin → Inventory**
+2. Click **"🗑️ Clean Supports"** in the header
+3. Review statistics about orphaned files
+4. Execute automatic cleanup
+
+<Warning>
+  Always backup important documents before running the cleanup tool. The deletion is permanent.
+</Warning>
+
+## Inventory Valuation
+
+CompuTécnicos uses the **average cost method** for inventory valuation:
+
+- Each purchase records the unit price paid
+- The system calculates the weighted average cost across all purchases
+- Inventory value = Stock quantity × Average unit price
+- This method complies with Colombian accounting standards
+
+### Calculating Cost of Goods Sold
+
+When inventory is sold (exit movement), the system uses the average cost to determine COGS:
+
+```text
+COGS = Quantity sold × Average unit price
+```
+
+## Provider Management
+
+### Registering Providers
+
+Before recording purchases, register your suppliers:
+
+1. Go to **Admin → Providers**
+2. Click **"+ New Provider"**
+3. Enter provider details:
+   - Name (required)
+   - Email
+   - Phone
+   - Address
+   - Contact person
+4. Submit the form
+
+<ParamField path="nombre" type="string" required>
+  Provider Name - Business name or legal name of the supplier
+</ParamField>
+
+<ParamField path="email" type="string">
+  Email - Contact email for the provider
+</ParamField>
+
+<ParamField path="telefono" type="string">
+  Phone - Contact phone number
+</ParamField>
+
+<ParamField path="direccion" type="string">
+  Address - Physical address of the provider
+</ParamField>
+
+<ParamField path="contacto" type="string">
+  Contact - Name of contact person at the provider
+</ParamField>
+
+### Provider Information for Compliance
+
+For Colombian tax compliance, ensure you record:
+
+- Full legal business name
+- NIT (Tax identification number) - can be stored in the name or address field
+- Complete address
+- Contact information
+
+<Warning>
+  Provider information is required for all purchase transactions to comply with Colombian tax regulations (DIAN requirements).
+</Warning>
+
+## Tax Tracking
+
+### IVA (Value Added Tax)
+
+Colombia's standard IVA rate is 19%, though some products may be exempt (0%) or taxed at reduced rates (5%).
+
+**IVA Paid**: When you purchase inventory, record the IVA amount paid to suppliers. This is your **input IVA** that can be deducted.
+
+**IVA Collected**: When you sell products, the system calculates IVA collected from customers (if configured). This is your **output IVA** owed to DIAN.
+
+The accounting reports show both IVA paid and collected to help you calculate your net IVA obligation.
+
+### Retención (Withholding Tax)
+
+In Colombia, certain transactions require withholding tax (retención en la fuente):
+
+- **Retención at Purchase**: Record the amount withheld by your business when paying suppliers
+- **Retención at Sale**: Track amounts withheld by customers from your invoices
+- Common rates: 2.5%, 3.5%, 4% depending on transaction type
+
+The system tracks withholding amounts for reconciliation and tax filing.
+
+## Data Integrity
+
+The system ensures accounting data integrity through:
+
+- **Database transactions**: All inventory movements are atomic operations
+- **Foreign key constraints**: Ensures referential integrity with products and providers
+- **Validation**: Required fields are enforced at both frontend and backend
+- **Audit trail**: All movements record user, timestamp, and are immutable (delete only)
+
+## Installation Requirements
+
+### Database Setup
+
+To enable accounting features, run the database migration:
+
+```sql
+-- Import the full database schema
+source database/computecnicos_full.sql
+
+-- Or apply incremental update
+source sql/sql_actualizacion_inventario.sql
+```
+
+### File Upload Permissions
+
+Set proper permissions for document storage:
+
+```bash
+# Create directory for supporting documents
+mkdir uploads/soportes
+chmod 755 uploads/soportes
+chown www-data:www-data uploads/soportes
+```
+
+### PHP Extensions
+
+Ensure required PHP extensions are enabled:
+
+```ini
+extension=gd       # For image processing
+extension=zip      # For Excel export
+extension=xml      # For spreadsheet generation
+extension=mbstring # For string handling
+```
+
+<Warning>
+  Missing PHP extensions will prevent Excel exports and document uploads from working properly.
+</Warning>

@@ -1,0 +1,495 @@
+---
+title: Colombian Tax Compliance
+description: Colombian DIAN compliance features including IVA, retención, and electronic invoicing
+---
+
+CompuTécnicos implements professional accounting features designed to meet Colombian tax regulations and DIAN (Dirección de Impuestos y Aduanas Nacionales) requirements.
+
+## Compliance Features
+
+The system satisfies key Colombian legal requirements:
+
+<Check>
+  **Supporting Documentation**: PDF/JPG upload for invoices and receipts
+</Check>
+
+<Check>
+  **Provider Information**: Complete supplier data including NIT and address
+</Check>
+
+<Check>
+  **IVA Control**: Track both input tax (paid) and output tax (collected)
+</Check>
+
+<Check>
+  **Withholding Tax**: Record retención en la fuente on purchases and sales
+</Check>
+
+<Check>
+  **Inventory Valuation**: Weighted average cost method for financial statements
+</Check>
+
+<Check>
+  **Audit Reports**: Professional Excel exports for DIAN audits
+</Check>
+
+<Check>
+  **Electronic Invoicing**: Integration with Alegra and Siigo for facturación electrónica
+</Check>
+
+## IVA (Value Added Tax)
+
+### Understanding Colombian IVA
+
+Colombia uses a value-added tax system with multiple rates:
+
+| Rate | Description | Common Products |
+|------|-------------|----------------|
+| 0% | Exempt | Basic foods, books, medicines |
+| 5% | Reduced | Some processed foods, utilities |
+| 19% | Standard | Most goods and services |
+
+### Recording IVA on Purchases
+
+When you purchase inventory from suppliers:
+
+1. The supplier charges you IVA (typically 19%)
+2. This is **input IVA** that you can deduct
+3. Record the IVA amount in the inventory movement
+4. Example:
+   - Product cost: $1,000,000
+   - IVA (19%): $190,000
+   - Total paid: $1,190,000
+
+<ParamField path="iva" type="decimal">
+  Record the IVA amount (in this example: 190000)
+</ParamField>
+
+### Tracking IVA on Sales
+
+When you sell products to customers:
+
+1. You charge IVA on the sale price
+2. This is **output IVA** that you owe to DIAN
+3. Configure product-level IVA rates
+4. The system calculates IVA automatically on invoices
+
+### Net IVA Calculation
+
+Your IVA obligation to DIAN is:
+
+```text
+Net IVA = IVA Collected (output) - IVA Paid (input)
+```
+
+If positive: You owe DIAN
+If negative: You have IVA credit to carry forward
+
+The **General Report** displays both IVA paid and collected KPIs to help calculate your net position.
+
+### IVA Filing Requirements
+
+<Warning>
+  Businesses must file IVA returns bimonthly or quarterly depending on their fiscal calendar. Use the accounting reports to calculate your filing amounts.
+</Warning>
+
+Steps for IVA filing:
+
+1. Generate **General Report** for the period
+2. Note the IVA Collected and IVA Paid amounts
+3. Calculate net IVA obligation
+4. Export report to Excel for documentation
+5. File through DIAN's MUISCA system
+6. Keep reports and supporting documents for 5 years
+
+## Retención (Withholding Tax)
+
+### Understanding Retención en la Fuente
+
+Colombia requires withholding tax on many transactions:
+
+- **At purchase**: You withhold a percentage from supplier payments
+- **At sale**: Customers (especially large companies) withhold from your invoices
+- Withheld amounts are credited against income tax
+
+### Common Withholding Rates
+
+| Concept | Rate | When Applied |
+|---------|------|-------------|
+| Services | 4% | Professional services |
+| Purchases | 2.5% | Goods purchases |
+| Commissions | 10% | Sales commissions |
+| Rent | 3.5% | Property rent |
+
+<Warning>
+  Withholding obligations depend on your tax regime (regular vs. simplified). Consult your accountant to determine which rates apply to your business.
+</Warning>
+
+### Recording Withholding Tax
+
+When recording a purchase with withholding:
+
+1. Enter the gross amount as unit price
+2. Record IVA if applicable
+3. Enter the withholding amount
+4. Example:
+   - Purchase amount: $1,000,000
+   - IVA (19%): $190,000
+   - Withholding (2.5%): $25,000
+   - Net paid: $1,165,000 ($1,190,000 - $25,000)
+
+<ParamField path="retencion" type="decimal">
+  Record the withholding amount (in this example: 25000)
+</ParamField>
+
+### Withholding Certificates
+
+You must provide withholding certificates to suppliers:
+
+1. Generate **Purchase Report** for the period
+2. Filter by supplier
+3. Sum withholding amounts
+4. Issue certificate (Certificado de Retención) to supplier
+5. File withholding declarations with DIAN monthly
+
+## Electronic Invoicing (Facturación Electrónica)
+
+CompuTécnicos integrates with Colombian electronic invoicing providers to comply with DIAN's facturación electrónica mandate.
+
+### Supported Providers
+
+The system supports two major e-invoicing providers:
+
+#### Alegra
+
+- Popular cloud-based accounting platform
+- Full DIAN certification
+- Automatic invoice generation and transmission
+- PDF and XML document generation
+
+#### Siigo
+
+- Enterprise accounting software
+- DIAN-approved provider
+- Complete electronic invoicing workflow
+- Integration with Colombian banks
+
+### Configuration
+
+Electronic invoicing is configured in `/config/factura_config.php`:
+
+<ParamField path="provider" type="enum" required>
+  E-invoicing provider to use
+  
+  - `alegra` - Alegra platform
+  - `siigo` - Siigo platform
+</ParamField>
+
+<ParamField path="simulate" type="boolean">
+  Simulation mode - If true, invoices are registered locally without calling external APIs. Set to false for production.
+</ParamField>
+
+#### Alegra Configuration
+
+<ParamField path="alegra.token" type="string" required>
+  Alegra API token from your account settings
+</ParamField>
+
+<ParamField path="alegra.email" type="string" required>
+  Email address associated with your Alegra account
+</ParamField>
+
+#### Siigo Configuration
+
+<ParamField path="siigo.client_id" type="string" required>
+  OAuth client ID from Siigo developer portal
+</ParamField>
+
+<ParamField path="siigo.client_secret" type="string" required>
+  OAuth client secret for API authentication
+</ParamField>
+
+<ParamField path="siigo.username" type="string" required>
+  Siigo account username
+</ParamField>
+
+<ParamField path="siigo.password" type="string" required>
+  Siigo account password
+</ParamField>
+
+### Invoice Generation Workflow
+
+When an order is marked as completed:
+
+1. System calls the e-invoicing provider API
+2. Invoice is created with order details:
+   - Customer information
+   - Line items with SKU, quantity, price
+   - IVA calculations per product
+   - Discounts if applicable
+3. Provider generates:
+   - Electronic invoice number
+   - PDF document
+   - XML file for DIAN
+   - CUFE (unique invoice code)
+4. System stores invoice reference locally
+5. Customer receives invoice via email
+
+### Invoice States
+
+| State | Description |
+|-------|-------------|
+| `simulado` | Testing mode, not sent to provider |
+| `enviado` | Sent to provider, awaiting confirmation |
+| `registrado` | Successfully registered |
+| `anulado` | Canceled with credit note |
+| `error` | Failed, requires manual intervention |
+
+### Credit Notes (Notas Crédito)
+
+When you need to cancel or adjust an invoice:
+
+1. System generates a credit note
+2. Links to original invoice
+3. Sends to e-invoicing provider
+4. Original invoice is marked as "anulado"
+5. Credit note is transmitted to DIAN
+
+<Warning>
+  Electronic invoices cannot be deleted once transmitted to DIAN. Always use credit notes for corrections or cancellations.
+</Warning>
+
+### Testing Electronic Invoicing
+
+During setup and testing:
+
+1. Set `'simulate' => true` in configuration
+2. Process test orders
+3. System registers invoices locally without API calls
+4. Verify all data is correct
+5. Switch to `'simulate' => false` for production
+
+## Supporting Documentation
+
+### DIAN Requirements
+
+Colombian law requires businesses to maintain:
+
+- Purchase invoices (facturas de compra)
+- Sales invoices (facturas de venta)
+- Payment receipts (comprobantes de pago)
+- Bank statements
+- Withholding certificates
+
+**Retention period**: 5 years minimum
+
+### Document Upload System
+
+CompuTécnicos provides secure document storage:
+
+- Upload PDF or JPG files
+- One document per inventory movement
+- Files stored in `uploads/soportes/`
+- Secure file naming: `soporte_[product_id]_[timestamp].[ext]`
+- Automatic cleanup of orphaned files
+
+### Document Security
+
+<Warning>
+  Ensure proper file permissions on the uploads directory:
+  
+  ```bash
+  chmod 755 uploads/soportes
+  chown www-data:www-data uploads/soportes
+  ```
+  
+  Incorrect permissions can prevent document uploads or create security vulnerabilities.
+</Warning>
+
+### Document Access
+
+Documents are accessible:
+
+- From the inventory table ("View" link)
+- Included in Excel report references
+- Direct URL access for authorized users only
+- Protected by session authentication
+
+## Provider (Supplier) Compliance
+
+### Required Provider Information
+
+For DIAN compliance, record complete supplier details:
+
+<ParamField path="nombre" type="string" required>
+  Full legal business name as registered with DIAN
+</ParamField>
+
+<ParamField path="nit" type="string" required>
+  NIT (Número de Identificación Tributaria) - Can be stored in the name field or use a dedicated field
+</ParamField>
+
+<ParamField path="direccion" type="string" required>
+  Complete physical address including city and department
+</ParamField>
+
+<ParamField path="telefono" type="string">
+  Contact phone number
+</ParamField>
+
+<ParamField path="email" type="string">
+  Business email address
+</ParamField>
+
+### Provider Registration Steps
+
+1. Navigate to **Admin → Providers**
+2. Click **"+ New Provider"**
+3. Enter all required information
+4. Verify NIT is correct (format: XXXXXXXXX-X)
+5. Save the provider
+
+All purchase movements must reference a registered provider.
+
+## Inventory Valuation Methods
+
+### Average Cost Method
+
+CompuTécnicos uses the **weighted average cost** method:
+
+```text
+Average Cost = Total Purchase Cost / Total Quantity Purchased
+```
+
+Example:
+- Purchase 1: 10 units at $1,000 = $10,000
+- Purchase 2: 5 units at $1,200 = $6,000
+- Average cost: $16,000 / 15 units = $1,066.67 per unit
+
+This method:
+- Is accepted by Colombian tax authorities
+- Smooths price fluctuations
+- Simplifies COGS calculations
+- Matches NIIF accounting standards
+
+<Warning>
+  Once you select an inventory valuation method, you must use it consistently. Changing methods requires DIAN approval and tax return adjustments.
+</Warning>
+
+## Financial Statement Support
+
+### Balance Sheet Inventory
+
+Use the **Valued Inventory Report** for:
+
+- Current assets section
+- Inventory line item
+- Valued at average cost
+- As of balance sheet date
+
+Example:
+```text
+Current Assets
+  Cash: $5,000,000
+  Inventory: $12,450,000 (from Valued Inventory Report)
+  Accounts Receivable: $3,000,000
+```
+
+### Income Statement COGS
+
+Calculate Cost of Goods Sold:
+
+```text
+COGS = Beginning Inventory + Purchases - Ending Inventory
+```
+
+Use accounting reports:
+1. **Valued Inventory Report** for beginning balance (Jan 1)
+2. **Purchase Report** for purchases during period
+3. **Valued Inventory Report** for ending balance (Dec 31)
+
+## Audit Preparation
+
+### DIAN Audit Response
+
+If DIAN requests information:
+
+1. **Generate reports** for the requested period
+2. **Export to Excel** for professional presentation
+3. **Gather supporting documents**:
+   - All uploaded invoices/receipts
+   - Withholding certificates
+   - Electronic invoice files (PDF/XML)
+4. **Provide audit trail**: Show user actions and timestamps
+5. **Calculate tax reconciliation**: IVA and withholdings
+
+### Document Checklist
+
+<Check>
+  General Report for full period
+</Check>
+
+<Check>
+  Purchase Report with all supplier transactions
+</Check>
+
+<Check>
+  Valued Inventory Report at period start and end
+</Check>
+
+<Check>
+  Supporting documents (PDFs/images) for all purchases
+</Check>
+
+<Check>
+  Electronic invoice records with CUFE numbers
+</Check>
+
+<Check>
+  Withholding tax calculations and certificates
+</Check>
+
+<Check>
+  Provider information with NIT verification
+</Check>
+
+## Future Enhancements
+
+Planned features for enhanced compliance:
+
+1. **Sales integration**: Connect exit movements to sales orders
+2. **Profit reports**: Calculate gross and net profit automatically
+3. **Bank reconciliation**: Match inventory purchases to bank transactions
+4. **DIAN fiscal reports**: Pre-formatted reports for common DIAN filings
+5. **Automatic backups**: Scheduled backup of documents and data
+6. **Digital signature**: Sign exported reports for legal validity
+
+## Compliance Best Practices
+
+### Daily Operations
+
+- Record all inventory movements on the same day
+- Upload supporting documents immediately
+- Verify supplier information is complete
+- Calculate taxes (IVA, retención) accurately
+- Generate electronic invoices for all sales
+
+### Monthly Tasks
+
+- Export and archive all monthly reports
+- Verify IVA calculations before filing
+- Issue withholding certificates to suppliers
+- Reconcile inventory counts with system
+- Review and clean orphaned documents
+
+### Annual Requirements
+
+- Year-end inventory valuation report
+- Annual IVA reconciliation
+- Income tax preparation with COGS
+- Financial statement support
+- Document retention verification (5 years)
+
+<Warning>
+  Maintain regular backups of your system and documents. Data loss can result in penalties from DIAN if you cannot produce required documentation during an audit.
+</Warning>
