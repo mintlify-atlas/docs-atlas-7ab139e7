@@ -42,6 +42,8 @@
               "features/product-catalog",
               "features/shopping-cart",
               "features/order-management",
+              "features/user-account",
+              "features/services",
               "features/inventory-system",
               "features/accounting",
               "features/electronic-invoicing"

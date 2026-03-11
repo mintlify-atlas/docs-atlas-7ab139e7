@@ -1,0 +1,286 @@
+---
+title: User Account Management
+description: Create and manage your customer account, update profile information, and customize your preferences
+icon: user
+---
+
+## Account Creation
+
+CompuTécnicos supports multiple registration methods to get you started quickly.
+
+### Registration Options
+
+<CardGroup cols={2}>
+  <Card title="Email Registration" icon="envelope">
+    Traditional account creation with email and password
+  </Card>
+  <Card title="Google OAuth" icon="google">
+    Quick sign-up using your Google account
+  </Card>
+</CardGroup>
+
+### Creating an Account
+
+<Steps>
+  <Step title="Navigate to Registration">
+    Click **Registrarse** in the top navigation or visit `/registro.php`
+  </Step>
+  
+  <Step title="Choose Registration Method">
+    - **Email**: Fill out the registration form with your details
+    - **Google**: Click the Google sign-in button
+  </Step>
+  
+  <Step title="Complete Your Profile">
+    Provide required information:
+    - Full name
+    - Email address
+    - Password (minimum 6 characters)
+    - Phone number (optional)
+    - Delivery address (optional)
+  </Step>
+  
+  <Step title="Verify and Login">
+    After registration, you'll be automatically logged in and redirected to the homepage
+  </Step>
+</Steps>
+
+### Google OAuth Registration
+
+When you register with Google:
+- Your name and email are automatically populated
+- A secure account is created without needing a password
+- Your Google profile photo is used as your avatar
+- You can still add phone and address details later
+
+<Note>
+Google OAuth accounts are linked to your Google email. You can manage the connection through your Google account settings.
+</Note>
+
+## Profile Management
+
+Access your profile by clicking your name in the navigation or visiting `/perfil.php`.
+
+### Profile Sections
+
+Your profile page has three main tabs:
+
+<Tabs>
+  <Tab title="Personal Information">
+    Update your basic account details:
+    - **Name**: Your full name
+    - **Email**: Contact email (used for order notifications)
+    - **Phone**: Contact number for delivery coordination
+    - **Address**: Default shipping address
+    - **Profile Photo**: Upload a custom avatar (JPG, PNG)
+    
+    <Note>
+    Email changes may require verification. Your email is used for password resets and order updates.
+    </Note>
+  </Tab>
+  
+  <Tab title="Security">
+    Manage your account security:
+    - **Change Password**: Update your login password
+    - **Active Sessions**: View and manage logged-in devices
+    - **Two-Factor**: Currently not available
+    
+    **Password Requirements**:
+    - Minimum 6 characters
+    - Must enter current password to change
+    - New password must be confirmed
+    
+    <Warning>
+    Changing your password will log you out of all other devices for security.
+    </Warning>
+  </Tab>
+  
+  <Tab title="Order History">
+    View all your previous orders:
+    - Order number and date
+    - Order status and tracking
+    - Total amount paid
+    - Download invoices (PDF)
+    - Reorder with one click
+    
+    See [Order Tracking](/features/order-management) for more details.
+  </Tab>
+</Tabs>
+
+### Updating Personal Information
+
+<Steps>
+  <Step title="Navigate to Profile">
+    Click your name in the top navigation bar
+  </Step>
+  
+  <Step title="Select 'Información Personal' Tab">
+    This opens the personal information editor
+  </Step>
+  
+  <Step title="Edit Fields">
+    Update any field you want to change:
+    ```html
+    Name: John Doe
+    Email: john@example.com
+    Phone: +57 300 123 4567
+    Address: Calle 123 #45-67, Bogotá
+    ```
+  </Step>
+  
+  <Step title="Save Changes">
+    Click **Guardar Cambios** to update your profile. Changes are saved immediately via AJAX.
+  </Step>
+</Steps>
+
+### Uploading Profile Photo
+
+<Steps>
+  <Step title="Click 'Cambiar Foto'">
+    In the personal information tab, click the camera icon or "Cambiar Foto" button
+  </Step>
+  
+  <Step title="Select Image">
+    Choose a JPG or PNG file from your device. Maximum file size: 5MB
+  </Step>
+  
+  <Step title="Crop and Adjust">
+    Use the image preview to ensure your photo looks good
+  </Step>
+  
+  <Step title="Upload">
+    Click **Subir** to save your new profile photo. Old photos are automatically removed.
+  </Step>
+</Steps>
+
+## Password Management
+
+### Changing Your Password
+
+<Steps>
+  <Step title="Go to Security Tab">
+    In your profile, click the **Seguridad** tab
+  </Step>
+  
+  <Step title="Enter Current Password">
+    For security, you must verify your current password
+  </Step>
+  
+  <Step title="Enter New Password">
+    Provide your new password (minimum 6 characters) and confirm it
+  </Step>
+  
+  <Step title="Save Changes">
+    Click **Actualizar Contraseña**. You'll be logged out of other devices automatically.
+  </Step>
+</Steps>
+
+### Password Reset (Forgot Password)
+
+If you forget your password:
+
+<Steps>
+  <Step title="Click 'Olvidé mi contraseña'">
+    On the login page, click the forgot password link
+  </Step>
+  
+  <Step title="Enter Your Email">
+    Provide the email address associated with your account
+  </Step>
+  
+  <Step title="Check Your Email">
+    You'll receive a password reset link valid for 1 hour
+  </Step>
+  
+  <Step title="Create New Password">
+    Click the link in the email and enter your new password
+  </Step>
+</Steps>
+
+<Warning>
+Password reset tokens expire after 1 hour for security. The system limits reset requests to 3 per 15 minutes to prevent abuse.
+</Warning>
+
+## Account Deletion
+
+You can permanently delete your account at any time.
+
+<Warning>
+**This action is irreversible!** Deleting your account will:
+- Remove all your personal information
+- Cancel any pending orders
+- Delete your order history
+- Remove your reviews and comments
+- Cannot be undone
+</Warning>
+
+### How to Delete Your Account
+
+<Steps>
+  <Step title="Visit Account Deletion Page">
+    Navigate to `/eliminar_cuenta.php` or find the link in your profile settings
+  </Step>
+  
+  <Step title="Confirm Your Identity">
+    Enter your current password to verify
+  </Step>
+  
+  <Step title="Acknowledge Warning">
+    Read and confirm you understand data will be permanently deleted
+  </Step>
+  
+  <Step title="Delete Account">
+    Click **Eliminar mi cuenta permanentemente**. You'll be logged out immediately.
+  </Step>
+</Steps>
+
+## Session Management
+
+### Remember Me
+
+When logging in, you can check **Recordarme** to stay logged in for up to 30 days.
+
+**How it works**:
+- A secure token is stored in your browser
+- You stay logged in even after closing the browser
+- Token is automatically renewed with each visit
+- Changing your password invalidates all remember tokens
+
+### Logging Out
+
+Click **Cerrar Sesión** in the navigation to log out:
+- Ends your current session
+- If "Remember Me" was enabled, it's also cleared
+- You'll be redirected to the homepage
+
+<Tip>
+For security on shared computers, always log out manually instead of relying on browser close.
+</Tip>
+
+## Privacy & Data
+
+### What We Store
+
+Your account includes:
+- **Required**: Name, email, password (encrypted)
+- **Optional**: Phone, address, profile photo
+- **Automatic**: Registration date, order history, reviews
+
+### Data Access
+
+You can view and export:
+- Your personal information (profile page)
+- Order history and invoices
+- Product reviews you've written
+
+### GDPR & Colombian Law
+
+CompuTécnicos complies with:
+- Colombian data protection law (Ley 1581 de 2012)
+- Your right to access, modify, and delete personal data
+- Secure password storage (bcrypt hashing)
+- Optional data collection (phone/address)
+
+<Note>
+See our privacy policy for full details on data handling and your rights.
+</Note>
