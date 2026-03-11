@@ -1,0 +1,116 @@
+{
+  "projectType": "saas",
+  "projectName": "CompuTécnicos",
+  "projectDescription": "Full-stack e-commerce platform for computer hardware sales with inventory management, PayPal integration, and Colombian electronic invoicing.",
+  "theme": "almond",
+  "primaryColor": "#E00000",
+  "lightColor": "#FF4444",
+  "darkColor": "#A00000",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "docker-setup"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "features/product-catalog",
+              "features/shopping-cart",
+              "features/order-management",
+              "features/inventory-system",
+              "features/accounting",
+              "features/electronic-invoicing"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/database",
+              "configuration/environment-variables",
+              "configuration/paypal-integration",
+              "configuration/google-oauth"
+            ]
+          },
+          {
+            "group": "Deployment",
+            "pages": [
+              "deployment/docker-deployment",
+              "deployment/production-setup"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Admin Guide",
+        "groups": [
+          {
+            "group": "Dashboard",
+            "pages": [
+              "admin/dashboard-overview",
+              "admin/analytics"
+            ]
+          },
+          {
+            "group": "Management",
+            "pages": [
+              "admin/products",
+              "admin/orders",
+              "admin/inventory",
+              "admin/users",
+              "admin/reviews"
+            ]
+          },
+          {
+            "group": "Accounting",
+            "pages": [
+              "admin/inventory-accounting",
+              "admin/reports",
+              "admin/colombian-compliance"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api/orders",
+              "api/reviews",
+              "api/password-reset"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Product catalog with categories, brands, and advanced filtering",
+    "Shopping cart with PayPal checkout integration",
+    "Admin dashboard with sales analytics and KPIs",
+    "Inventory management with accounting and document support",
+    "Electronic invoicing with Colombian legal compliance",
+    "User authentication with Google OAuth support",
+    "Order tracking with status history",
+    "Customer reviews and ratings system",
+    "PDF invoice generation",
+    "Docker containerized deployment"
+  ],
+  "publicApiSurface": [
+    "/api/pendientes_resena.php - Get pending reviews for user",
+    "/api/resenas.php - Submit and manage product reviews",
+    "/api/forgot_password.php - Password reset endpoint",
+    "/admin/api_check_orders.php - Check order status",
+    "PayPal integration endpoints: /paypal_create_order.php, /paypal_capture_order.php, /paypal_response.php",
+    "Google OAuth: /google-login.php, /google-callback.php"
+  ]
+}
